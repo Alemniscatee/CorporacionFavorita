@@ -1,4 +1,4 @@
-# 🚀 Pipeline ETL Automatizado  (La Favorita)
+#  Pipeline ETL Automatizado  (La Favorita)
 
 Este proyecto consiste en el despliegue de una infraestructura en la nube diseñada para procesar de forma masiva, optimizada y secuencial los datos transaccionales de la empresa o cadena "La Favorita" . 
 
@@ -6,7 +6,7 @@ La arquitectura utiliza un enfoque estrictamente **modular** (es decir que los s
 
 ---
 
-## 🏗️rquitectura d
+## Arquitectura 
 
 El ecosistema tecnológico se compone de los siguientes pilares:
 
@@ -17,7 +17,7 @@ El ecosistema tecnológico se compone de los siguientes pilares:
 
 ---
 
-## ⚙️structura del  Pipeline
+## Estructura del  Pipeline
 
 El pipeline de datos ejecuta 6 etapas secuenciales de forma lineal (flujo de riel). Si una etapa crítica falla, las siguientes se bloquean automáticamente para resguardar la integridad de la base de datos:
 
