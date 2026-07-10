@@ -1,0 +1,29 @@
+# --- Airflow & Docker (Crucial) ---
+logs/
+plugins/
+config/
+.env
+
+# --- Python & Entornos Virtuales ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# --- Bases de Datos Locales ---
+*.db
+*.sqlite3
+postgres-data/
+
+# --- Archivos del Sistema / IDEs ---
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.save
