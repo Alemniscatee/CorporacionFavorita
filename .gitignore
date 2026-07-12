@@ -28,3 +28,5 @@ postgres-data/
 *.swp
 *.save
 dags/datasets/
+dags/.env
+dags/.env
