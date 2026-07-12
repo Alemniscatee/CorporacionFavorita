@@ -3,11 +3,9 @@ name: Deploy Project to Azure VM
 on:
   push:
     branches: [ "main" ]
-    # El flujo se activará si se hace push a main...
     paths:
       - 'manifest.json'
-      - 'dags/**'
-      # ...pero solo si los cambios modifican el manifest o los archivos dentro de dags
+
 
 jobs:
   deploy:
