@@ -123,11 +123,19 @@ def cargar_todo() -> dict:
               f"({dt:.3f}s)")
     return dfs, metricas
 
-
-if __name__ == "__main__":
+def ejecutar_tarea_carga():
+    print("=== Iniciando Script de Carga de Datos (Tarea 1) ===")
+    
     dfs, metricas = cargar_todo()
-    import json
+    
     out_dir = PROJECT_DIR / "eda_output"
     out_dir.mkdir(exist_ok=True)
+    
     with open(out_dir / "metricas_carga.json", "w") as f:
         json.dump(metricas, f, indent=2, ensure_ascii=False)
+        
+    print("=== Script de Carga de Datos Finalizado Exitosamente ===")
+
+
+if __name__ == "__main__":
+    ejecutar_tarea_carga()
