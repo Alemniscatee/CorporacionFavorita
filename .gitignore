@@ -27,3 +27,4 @@ postgres-data/
 .vscode/
 *.swp
 *.save
+dags/datasets/
