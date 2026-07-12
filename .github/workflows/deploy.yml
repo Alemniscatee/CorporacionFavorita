@@ -20,4 +20,3 @@ jobs:
           cd ~/proyecto-data
           git pull origin main --no-rebase
           echo "¡Despliegue completado! Airflow actualizará los DAGs automáticamente."
-
