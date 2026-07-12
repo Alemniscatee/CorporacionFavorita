@@ -1,31 +1,64 @@
 from airflow import DAG
-from airflow.operators.python import PythonOperator
-from datetime import datetime
+from airflow.operators.bash import BashOperator
+from datetime import datetime, timedelta
 
-# IMPORTACIÓN MODULAR DESDE LA CARPETA SCRIPTS
-from scripts.descargar import ejecutar_descarga
-from scripts.limpiar import ejecutar_limpieza
-from scripts.transformar import ejecutar_transformacion
-from scripts.validar import ejecutar_validacion
-from scripts.cargar import ejecutar_carga
-from scripts.reporte import ejecutar_reporte
+# Ruta absoluta dentro del contenedor de Airflow hacia tus scripts
+SCRIPTS_DIR = "/opt/airflow/dags/scripts"
+
+default_args = {
+    'owner': 'user', 
+    'depends_on_past': False,
+    'email_on_failure': False,
+    'email_on_retry': False,
+    'retries': 1,
+    'retry_delay': timedelta(minutes=5),
+}
 
 with DAG(
-    dag_id="pipeline_migracion_la_favorita",
-    description="Pipeline ETL modular y secuencial utilizando Polars",
-    start_date=datetime(2026, 1, 1),
-    schedule_interval=None,
+    'favorita_pipeline',
+    default_args=default_args,
+    description='Pipeline ETL y EDA para Corporación Favorita usando Polars',
+    schedule_interval=None, 
+    start_date=datetime(2026, 7, 10),
     catchup=False,
-    tags=["la_favorita", "polars", "produccion"]
+    tags=['etl', 'polars', 'postgres'],
 ) as dag:
 
-    # Enlazamos cada tarea a la función importada de cada archivo .py
-    t1 = PythonOperator(task_id="descargar_datos", python_callable=ejecutar_descarga)
-    t2 = PythonOperator(task_id="limpiar_datos", python_callable=ejecutar_limpieza)
-    t3 = PythonOperator(task_id="transformar_datos", python_callable=ejecutar_transformacion)
-    t4 = PythonOperator(task_id="validar_calidad", python_callable=ejecutar_validacion)
-    t5 = PythonOperator(task_id="cargar_postgres", python_callable=ejecutar_carga)
-    t6 = PythonOperator(task_id="generar_reporte", python_callable=ejecutar_reporte)
+    # Tarea 1 - Cargar datos
+    t1_cargar_datos = BashOperator(
+        task_id='cargar_datos',
+        bash_command=f'python {SCRIPTS_DIR}/cargar_datos.py'
+    )
 
-    # El flujo secuencial riel por riel
-    t1 >> t2 >> t3 >> t4 >> t5 >> t6
+    # Tarea 2 - EDA Inicial
+    t2_eda_inicial = BashOperator(
+        task_id='eda_inicial',
+        bash_command=f'python {SCRIPTS_DIR}/eda_inicial.py'
+    )
+
+    # Tarea 3 - Limpiar datos
+    t3_limpiar_datos = BashOperator(
+        task_id='limpiar_datos',
+        bash_command=f'python {SCRIPTS_DIR}/limpiar_datos.py'
+    )
+
+    # Tarea 4 - Consolidar
+    t4_consolidar = BashOperator(
+        task_id='consolidar',
+        bash_command=f'python {SCRIPTS_DIR}/consolidar.py'
+    )
+
+    # Tarea 5 - EDA Profundo
+    t5_eda_profundo = BashOperator(
+        task_id='eda_profundo',
+        bash_command=f'python {SCRIPTS_DIR}/eda_profundo.py'
+    )
+
+    # Tarea 6 - Exportar a PostgreSQL
+    t6_exportar_postgres = BashOperator(
+        task_id='exportar_postgres',
+        bash_command=f'python {SCRIPTS_DIR}/exportar_postgres.py'
+    )
+
+    # Definir la secuencia estricta del pipeline
+    t1_cargar_datos >> t2_eda_inicial >> t3_limpiar_datos >> t4_consolidar >> t5_eda_profundo >> t6_exportar_postgres
