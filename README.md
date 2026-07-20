@@ -58,6 +58,45 @@ El ecosistema tecnológico se compone de los siguientes pilares:
 │  visualizar los datos procesados por el pipeline en tiempo casi real.      │
 └────────────────────────────────────────────────────────────────────────────┘
 ```
+---
+
+# Estructura del Pipeline
+
+El pipeline de datos está orquestado mediante **Apache Airflow** y ejecuta seis etapas de forma secuencial. Cada tarea depende de la finalización exitosa de la anterior, garantizando la consistencia de la información antes de almacenarla en la base de datos.
+
+Si una etapa crítica falla, Airflow bloquea automáticamente las tareas posteriores para preservar la integridad del proceso.
+
+```text
+[descargar_datos]
+        │
+        ▼
+[limpiar_datos]
+        │
+        ▼
+[transformar_datos]
+        │
+        ▼
+[validar_calidad]
+        │
+        ▼
+[cargar_postgres]
+        │
+        ▼
+[generar_reporte]
+```
+
+## Descripción de las etapas
+
+| Etapa | Descripción |
+|-------|-------------|
+| **Descargar datos** | Obtiene los archivos CSV utilizados por el proyecto. |
+| **Limpiar datos** | Corrige tipos de datos, elimina registros inválidos y trata valores faltantes. |
+| **Transformar datos** | Consolida la información y genera las tablas analíticas utilizando Polars. |
+| **Validar calidad** | Comprueba duplicados, consistencia e integridad antes de la carga. |
+| **Cargar PostgreSQL** | Exporta las tablas finales a la base de datos `proyecto_favorita`. |
+| **Generar reporte** | Registra métricas y resultados de la ejecución del pipeline. |
+
+---
 # 6. Métricas del pipeline
 
 ## 6.1 Tiempo de ejecución por tarea
@@ -104,44 +143,6 @@ El ecosistema tecnológico se compone de los siguientes pilares:
 | eda_sensibilidad_ciudad_petroleo | 22 | Ciudades más sensibles al petróleo |
 | eda_transacciones_vs_ventas | 54 | Relación transacciones-ventas por tienda |
 | eda_ticket_promedio_tiendas | 54 | Ticket promedio por tienda |
----
-
-# Estructura del Pipeline
-
-El pipeline de datos está orquestado mediante **Apache Airflow** y ejecuta seis etapas de forma secuencial. Cada tarea depende de la finalización exitosa de la anterior, garantizando la consistencia de la información antes de almacenarla en la base de datos.
-
-Si una etapa crítica falla, Airflow bloquea automáticamente las tareas posteriores para preservar la integridad del proceso.
-
-```text
-[descargar_datos]
-        │
-        ▼
-[limpiar_datos]
-        │
-        ▼
-[transformar_datos]
-        │
-        ▼
-[validar_calidad]
-        │
-        ▼
-[cargar_postgres]
-        │
-        ▼
-[generar_reporte]
-```
-
-## Descripción de las etapas
-
-| Etapa | Descripción |
-|-------|-------------|
-| **Descargar datos** | Obtiene los archivos CSV utilizados por el proyecto. |
-| **Limpiar datos** | Corrige tipos de datos, elimina registros inválidos y trata valores faltantes. |
-| **Transformar datos** | Consolida la información y genera las tablas analíticas utilizando Polars. |
-| **Validar calidad** | Comprueba duplicados, consistencia e integridad antes de la carga. |
-| **Cargar PostgreSQL** | Exporta las tablas finales a la base de datos `proyecto_favorita`. |
-| **Generar reporte** | Registra métricas y resultados de la ejecución del pipeline. |
-
 ---
 
 # Dashboard de Power BI
