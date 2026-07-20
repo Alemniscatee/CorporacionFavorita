@@ -16,99 +16,129 @@ El ecosistema tecnológico se compone de los siguientes pilares:
 *   **Almacenamiento:** Instancia relacional de PostgreSQL para persistir los datos limpios y transformados listos para analítica.
 ## Diagrama de arquitectura de la solución
 
+# Arquitectura del Proyecto
+
 ```text
 ┌────────────────────────────────────────────────────────────────────────────┐
 │                          AZURE VM (Ubuntu 22.04)                          │
 │                                                                           │
-│  ┌────────────────────────────────────────────────────────────────────┐  │
-│  │                         DOCKER COMPOSE                              │  │
-│  │                                                                     │  │
-│  │  ┌───────────────┐  ┌───────────────┐  ┌───────────────────────┐  │  │
-│  │  │   Airflow     │  │   Airflow     │  │     PostgreSQL        │  │  │
-│  │  │  Scheduler    │  │  Webserver    │  │    (proyecto_         │  │  │
-│  │  │               │  │   (Puerto     │  │     favorita)         │  │  │
-│  │  │               │  │    8080)      │  │                       │  │  │
-│  │  └───────┬───────┘  └───────────────┘  └───────────┬───────────┘  │  │
-│  │          │                                         │               │  │
-│  │  ┌───────▼─────────────────────────────────────────▼───────────┐  │  │
-│  │  │                 SCRIPTS (Python + Polars)                    │  │  │
-│  │  │                                                              │  │  │
-│  │  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌────────────┐     │  │
-│  │  │  │  Carga   │→│ Limpieza │→│Consolida-│→│EDA Profundo│     │  │
-│  │  │  └──────────┘  └──────────┘  └──────────┘  └────────────┘     │  │
-│  │  │                                                              │  │
-│  │  │  ┌──────────────────────────────────────────────────────┐     │  │
-│  │  │  │  Exportación a PostgreSQL (14 tablas)                │     │  │
-│  │  │  └──────────────────────────────────────────────────────┘     │  │
-│  │  └──────────────────────────────────────────────────────────────┘ │
-│  └────────────────────────────────────────────────────────────────────┘
+│  ┌────────────────────────────────────────────────────────────────────┐   │
+│  │                         DOCKER COMPOSE                             │   │
+│  │                                                                    │   │
+│  │  ┌───────────────┐  ┌───────────────┐  ┌───────────────────────┐   │   │
+│  │  │   Airflow     │  │   Airflow     │  │     PostgreSQL        │   │   │
+│  │  │  Scheduler    │  │  Webserver    │  │   (proyecto_favorita) │   │   │
+│  │  │               │  │   Puerto 8080 │  │                       │   │   │
+│  │  └───────┬───────┘  └───────────────┘  └───────────┬───────────┘   │   │
+│  │          │                                         │               │   │
+│  │  ┌───────▼─────────────────────────────────────────▼────────────┐  │   │
+│  │  │                 Scripts (Python + Polars)                    │  │   │
+│  │  │                                                              │  │   │
+│  │  │  ┌──────────┐  ┌──────────┐  ┌────────────┐  ┌────────────┐   │  │   │
+│  │  │  │  Carga   │→│ Limpieza │→│Consolidación│→│ EDA Profundo│   │  │   │
+│  │  │  └──────────┘  └──────────┘  └────────────┘  └────────────┘   │  │   │
+│  │  │                                                              │  │   │
+│  │  │  ┌────────────────────────────────────────────────────────┐  │   │
+│  │  │  │ Exportación a PostgreSQL (14 tablas analíticas)        │  │   │
+│  │  │  └────────────────────────────────────────────────────────┘  │   │
+│  │  └──────────────────────────────────────────────────────────────┘ │   │
+│  └────────────────────────────────────────────────────────────────────┘   │
 │                                                                           │
 │  ┌────────────────────────────────────────────────────────────────────┐   │
 │  │               DATOS LOCALES (dags/datasets/)                       │   │
-│  │  train.csv | stores.csv | transactions.csv | oil.csv | holidays   │   │
+│  │ train.csv | stores.csv | transactions.csv | oil.csv | holidays     │   │
 │  └────────────────────────────────────────────────────────────────────┘   │
 └────────────────────────────────────────────────────────────────────────────┘
                                     │
                                     ▼ (DirectQuery)
-
 ┌────────────────────────────────────────────────────────────────────────────┐
-│                       POWER BI DESKTOP                                     │
+│                           POWER BI DESKTOP                                │
 │                                                                            │
-│  ┌────────────────────────────────────────────────────────────────────┐    │
-│  │                        DASHBOARD                                   │    │
-│  │                                                                    │    │
-│  │ • Ventas por familia de producto                                   │    │
-│  │ • Ranking de tiendas                                               │    │
-│  │ • Evolución mensual 2013-2017                                      │    │
-│  │ • Impacto de feriados                                              │    │
-│  │ • Mapa de ventas por ciudad/provincia                              │    │
-│  │ • Correlación petróleo-ventas                                      │    │
-│  │ • Comparativo con/sin promoción                                    │    │
-│  │ • Ticket promedio por tienda                                       │    │
-│  └────────────────────────────────────────────────────────────────────┘    │
+│  Dashboard conectado directamente a PostgreSQL mediante DirectQuery para   │
+│  visualizar los datos procesados por el pipeline en tiempo casi real.      │
 └────────────────────────────────────────────────────────────────────────────┘
+```
 
 ---
----
 
-## Estructura del  Pipeline
+# Estructura del Pipeline
 
-El pipeline de datos ejecuta 6 etapas secuenciales de forma lineal (flujo de riel). Si una etapa crítica falla, las siguientes se bloquean automáticamente para resguardar la integridad de la base de datos:
+El pipeline de datos está orquestado mediante **Apache Airflow** y ejecuta seis etapas de forma secuencial. Cada tarea depende de la finalización exitosa de la anterior, garantizando la consistencia de la información antes de almacenarla en la base de datos.
+
+Si una etapa crítica falla, Airflow bloquea automáticamente las tareas posteriores para preservar la integridad del proceso.
 
 ```text
-[descargar_datos] ➔ [limpiar_datos] ➔ [transformar_datos] ➔ [validar_calidad] ➔ [cargar_postgres] ➔ [generar_reporte]
+[descargar_datos]
+        │
+        ▼
+[limpiar_datos]
+        │
+        ▼
+[transformar_datos]
+        │
+        ▼
+[validar_calidad]
+        │
+        ▼
+[cargar_postgres]
+        │
+        ▼
+[generar_reporte]
+```
 
+## Descripción de las etapas
 
+| Etapa | Descripción |
+|-------|-------------|
+| **Descargar datos** | Obtiene los archivos CSV utilizados por el proyecto. |
+| **Limpiar datos** | Corrige tipos de datos, elimina registros inválidos y trata valores faltantes. |
+| **Transformar datos** | Consolida la información y genera las tablas analíticas utilizando Polars. |
+| **Validar calidad** | Comprueba duplicados, consistencia e integridad antes de la carga. |
+| **Cargar PostgreSQL** | Exporta las tablas finales a la base de datos `proyecto_favorita`. |
+| **Generar reporte** | Registra métricas y resultados de la ejecución del pipeline. |
 
-## Dashboard de Power BI
+---
 
-### Conexión a la base de datos
-El dashboard se conecta directamente a la base de datos en PostgreSQL (`proyecto_favorita`) en modo **DirectQuery**,
-con actualización en tiempo real para visualizar los datos más recientes en el pipeline, mientras la VM se encuentre activa.   
+# Dashboard de Power BI
 
-### Gráficos incluidos
+## Conexión a la base de datos
 
-**Ventas por familia** — 
-Ranking de las categorías de producto con mayor volumen de ventas.
+El dashboard se conecta directamente a la base de datos **PostgreSQL (`proyecto_favorita`)** utilizando el modo **DirectQuery**, lo que permite consultar la información sin importar los datos al modelo.
 
-**Evolución mensual de ventas** — 
-Serie temporal de ventas totales por mes, mostrando estacionalidad y picos de demanda a lo largo del periodo analizado.
+Mientras la máquina virtual permanezca activa, el dashboard refleja automáticamente la información más reciente generada por el pipeline.
 
-**Mapa por ciudad/provincia** — 
-Distribución geográfica de las ventas en Ecuador, en Quito y Guayaquil concentrando la mayor proporción del total.
+---
 
-**Impacto de feriados** —
-Comparación de ventas promedio en feriado nacional vs día normal.
+## Visualizaciones incluidas
 
-**Correlación petróleo vs ventas** (evolución del tiempo)— 
-Evolución conjunta del precio del petróleo y las ventas totales, para observar si se mueven de forma similar.
+### Ventas por familia
 
-**Comparativo con/sin promoción** — 
-Ventas promedio de producto por familia y comparación entre unidades con y sin promoción.
+Ranking de las familias de productos con mayor volumen de ventas.
 
-**Ranking de tiendas** — 
-Visualización tipo treemap del total de ventas por tienda y tipo de tienda.
+### Evolución mensual de ventas
 
-**Top de familias** — 
-Participación porcentual de cada familia de producto sobre el total de ventas.
+Serie temporal de las ventas entre **2013 y 2017**, permitiendo identificar tendencias, estacionalidad y picos de demanda.
 
+### Mapa por ciudad y provincia
+
+Distribución geográfica de las ventas en Ecuador, donde **Quito** y **Guayaquil** concentran la mayor participación.
+
+### Impacto de feriados
+
+Comparación entre el promedio de ventas durante feriados nacionales y días normales.
+
+### Correlación petróleo vs. ventas
+
+Visualización conjunta de la evolución del precio del petróleo y las ventas totales para analizar posibles relaciones entre ambas variables.
+
+### Comparativo con y sin promoción
+
+Comparación de las ventas promedio de productos promocionados frente a aquellos sin promoción.
+
+### Ranking de tiendas
+
+Treemap que muestra el total de ventas por tienda y por tipo de establecimiento.
+
+### Top de familias
+
+Participación porcentual de cada familia de productos respecto al total de ventas.
