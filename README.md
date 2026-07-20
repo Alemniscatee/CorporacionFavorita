@@ -58,7 +58,52 @@ El ecosistema tecnológico se compone de los siguientes pilares:
 │  visualizar los datos procesados por el pipeline en tiempo casi real.      │
 └────────────────────────────────────────────────────────────────────────────┘
 ```
+# 6. Métricas del pipeline
 
+## 6.1 Tiempo de ejecución por tarea
+
+| Tarea | Tiempo (seg) | Registros procesados |
+|--------|-------------:|--------------------:|
+| cargar_datos | 9.5 | 3,000,888 |
+| eda_inicial | 8.2 | 3,000,888 |
+| limpiar_datos | 12.4 | 3,000,888 |
+| consolidar | 35.7 | 3,000,888 |
+| eda_profundo | 45.3 | 3,000,888 |
+| exportar_postgres | 52.1 | 3,000,888 |
+| **TOTAL** | **163.2 (2.7 min)** | **3,000,888** |
+
+---
+
+## 6.2 Registros eliminados durante la limpieza
+
+| Archivo | Originales | Limpios | Duplicados | Nulos imputados |
+|---------|-----------:|--------:|-----------:|----------------:|
+| train.csv | 3,000,888 | 3,000,888 | 0 | 0 |
+| stores.csv | 54 | 54 | 0 | 0 |
+| transactions.csv | 83,488 | 83,488 | 0 | 0 |
+| oil.csv | 1,218 | 1,218 | 0 | 214 (interpolación) |
+| holidays_events.csv | 350 | 350 | 0 | 0 |
+
+---
+
+## 6.3 Tablas generadas en PostgreSQL (14 tablas)
+
+| Tabla | Registros | Propósito |
+|-------|----------:|-----------|
+| `ventas_consolidado` | 3,000,888 | Datos maestros consolidados |
+| `eda_ventas_por_familia` | 33 | Volumen de ventas por categoría |
+| `eda_ranking_tiendas` | 54 | Ranking de tiendas por ventas |
+| `eda_ventas_por_ciudad_provincia` | 22 | Ventas promedio geográficas |
+| `eda_evolucion_temporal` | 56 | Tendencia mensual (2013–2017) |
+| `eda_impacto_feriados` | 2 | Comparativo feriado vs normal |
+| `eda_ventas_entorno_feriados` | 231 | Días previos/posteriores a feriados |
+| `eda_sensibilidad_familia_feriados` | 33 | Familias más sensibles a feriados |
+| `eda_impacto_promociones` | 33 | Promedio de ventas con/sin promoción |
+| `eda_correlacion_petroleo_ventas` | 56 | Correlación mensual petróleo-ventas |
+| `eda_lag_petroleo_ventas` | 7 | Lag temporal (2015–2016) |
+| `eda_sensibilidad_ciudad_petroleo` | 22 | Ciudades más sensibles al petróleo |
+| `eda_transacciones_vs_ventas` | 54 | Relación transacciones-ventas por tienda |
+| `eda_ticket_promedio_tiendas` | 54 | Ticket promedio por tienda |
 ---
 
 # Estructura del Pipeline
