@@ -14,6 +14,35 @@ El ecosistema tecnológico se compone de los siguientes pilares:
 *   **Contenedores (Docker Compose):** Aislamiento completo de los servicios esenciales de Apache Airflow y la base de datos PostgreSQL.
 *   **Motor de Procesamiento:** Scripts independientes en Python optimizados mediante **Polars**.
 *   **Almacenamiento:** Instancia relacional de PostgreSQL para persistir los datos limpios y transformados listos para analítica.
+# 3. Diagrama de arquitectura de la solución
+
+```text
+┌────────────────────────────────────────────────────────────────────────────┐
+│                          AZURE VM (Ubuntu 22.04)                          │
+│                                                                           │
+│  ┌────────────────────────────────────────────────────────────────────┐   │
+│  │                        DOCKER COMPOSE                              │   │
+│  │                                                                    │   │
+│  │ ┌───────────────┐  ┌───────────────┐  ┌──────────────────────────┐ │   │
+│  │ │   Airflow     │  │   Airflow     │  │      PostgreSQL          │ │   │
+│  │ │ Scheduler     │  │ Webserver     │  │ proyecto_favorita        │ │   │
+│  │ └───────┬───────┘  └───────────────┘  └───────────┬──────────────┘ │   │
+│  │         │                                         │                │   │
+│  │         ▼                                         ▼                │   │
+│  │  ┌──────────────────────────────────────────────────────────────┐  │   │
+│  │  │             Scripts Python + Polars                          │  │   │
+│  │  │                                                              │  │   │
+│  │  │ Carga → Limpieza → Consolidación → EDA → PostgreSQL          │  │   │
+│  │  └──────────────────────────────────────────────────────────────┘  │   │
+│  └────────────────────────────────────────────────────────────────────┘   │
+│                                                                           │
+│        Datos CSV almacenados en dags/datasets                             │
+└────────────────────────────────────────────────────────────────────────────┘
+                                 │
+                                 ▼
+                    Power BI Desktop (DirectQuery)
+```
+
 
 ---
 
