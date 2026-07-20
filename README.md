@@ -90,20 +90,20 @@ El ecosistema tecnológico se compone de los siguientes pilares:
 
 | Tabla | Registros | Propósito |
 |-------|----------:|-----------|
-| `ventas_consolidado` | 3,000,888 | Datos maestros consolidados |
-| `eda_ventas_por_familia` | 33 | Volumen de ventas por categoría |
-| `eda_ranking_tiendas` | 54 | Ranking de tiendas por ventas |
-| `eda_ventas_por_ciudad_provincia` | 22 | Ventas promedio geográficas |
-| `eda_evolucion_temporal` | 56 | Tendencia mensual (2013–2017) |
-| `eda_impacto_feriados` | 2 | Comparativo feriado vs normal |
-| `eda_ventas_entorno_feriados` | 231 | Días previos/posteriores a feriados |
-| `eda_sensibilidad_familia_feriados` | 33 | Familias más sensibles a feriados |
-| `eda_impacto_promociones` | 33 | Promedio de ventas con/sin promoción |
-| `eda_correlacion_petroleo_ventas` | 56 | Correlación mensual petróleo-ventas |
-| `eda_lag_petroleo_ventas` | 7 | Lag temporal (2015–2016) |
-| `eda_sensibilidad_ciudad_petroleo` | 22 | Ciudades más sensibles al petróleo |
-| `eda_transacciones_vs_ventas` | 54 | Relación transacciones-ventas por tienda |
-| `eda_ticket_promedio_tiendas` | 54 | Ticket promedio por tienda |
+| ventas_consolidado | 3,000,888 | Datos maestros consolidados |
+| eda_ventas_por_familia | 33 | Volumen de ventas por categoría |
+| eda_ranking_tiendas | 54 | Ranking de tiendas por ventas |
+| eda_ventas_por_ciudad_provincia| 22 | Ventas promedio geográficas |
+| eda_evolucion_temporal | 56 | Tendencia mensual (2013–2017) |
+| eda_impacto_feriados | 2 | Comparativo feriado vs normal |
+| eda_ventas_entorno_feriados | 231 | Días previos/posteriores a feriados |
+| eda_sensibilidad_familia_feriados | 33 | Familias más sensibles a feriados |
+| eda_impacto_promociones | 33 | Promedio de ventas con/sin promoción |
+| eda_correlacion_petroleo_ventas | 56 | Correlación mensual petróleo-ventas |
+| eda_lag_petroleo_ventas | 7 | Lag temporal (2015–2016) |
+| eda_sensibilidad_ciudad_petroleo | 22 | Ciudades más sensibles al petróleo |
+| eda_transacciones_vs_ventas | 54 | Relación transacciones-ventas por tienda |
+| eda_ticket_promedio_tiendas | 54 | Ticket promedio por tienda |
 ---
 
 # Estructura del Pipeline
