@@ -187,7 +187,8 @@ Treemap que muestra el total de ventas por tienda y por tipo de establecimiento.
 
 ### Top de familias
 
-Participación porcentual de cada familia de productos respecto al total de ventas.  
+Participación porcentual de cada familia de productos respecto al total de ventas.    
+
 ---
 ## Conclusiones 
 El sistema procesa 3,000,888 registros en un tiempo total de 12.056 segundos para la carga, 12.934 segundos para la limpieza y 12.158 segundos para la consolidación, demostrando la alta eficiencia de Polars para el manejo de datos masivos. El pipeline completo se ejecuta en menos de 1 minuto, muy por debajo de los 2.7 minutos estimados inicialmente.  
