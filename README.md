@@ -16,7 +16,7 @@ El ecosistema tecnológico se compone de los siguientes pilares:
 *   **Almacenamiento:** Instancia relacional de PostgreSQL para persistir los datos limpios y transformados listos para analítica.
 ## Diagrama de arquitectura de la solución
 
-# Arquitectura del Proyecto
+## Arquitectura del Proyecto
 
 ```text
 ┌───────────────────────────────────────────────────────────────────────────┐
