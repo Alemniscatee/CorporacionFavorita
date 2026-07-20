@@ -23,3 +23,38 @@ El pipeline de datos ejecuta 6 etapas secuenciales de forma lineal (flujo de rie
 
 ```text
 [descargar_datos] ➔ [limpiar_datos] ➔ [transformar_datos] ➔ [validar_calidad] ➔ [cargar_postgres] ➔ [generar_reporte]
+
+
+
+## Dashboard de Power BI
+
+### Conexión a la base de datos
+El dashboard se conecta directamente a la base de datos en PostgreSQL (`proyecto_favorita`) en modo **DirectQuery**,
+con actualización en tiempo real para visualizar los datos más recientes en el pipeline, mientras la VM se encuentre activa.   
+
+### Gráficos incluidos
+
+**Ventas por familia** — 
+Ranking de las categorías de producto con mayor volumen de ventas.
+
+**Evolución mensual de ventas** — 
+Serie temporal de ventas totales por mes, mostrando estacionalidad y picos de demanda a lo largo del periodo analizado.
+
+**Mapa por ciudad/provincia** — 
+Distribución geográfica de las ventas en Ecuador, en Quito y Guayaquil concentrando la mayor proporción del total.
+
+**Impacto de feriados** —
+Comparación de ventas promedio en feriado nacional vs día normal.
+
+**Correlación petróleo vs ventas** (evolución del tiempo)— 
+Evolución conjunta del precio del petróleo y las ventas totales, para observar si se mueven de forma similar.
+
+**Comparativo con/sin promoción** — 
+Ventas promedio de producto por familia y comparación entre unidades con y sin promoción.
+
+**Ranking de tiendas** — 
+Visualización tipo treemap del total de ventas por tienda y tipo de tienda.
+
+**Top de familias** — 
+Participación porcentual de cada familia de producto sobre el total de ventas.
+
