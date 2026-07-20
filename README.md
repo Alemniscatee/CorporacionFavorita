@@ -187,4 +187,13 @@ Treemap que muestra el total de ventas por tienda y por tipo de establecimiento.
 
 ### Top de familias
 
-Participación porcentual de cada familia de productos respecto al total de ventas.
+Participación porcentual de cada familia de productos respecto al total de ventas.  
+---
+## Conclusiones 
+El sistema procesa 3,000,888 registros en un tiempo total de 12.056 segundos para la carga, 12.934 segundos para la limpieza y 12.158 segundos para la consolidación, demostrando la alta eficiencia de Polars para el manejo de datos masivos. El pipeline completo se ejecuta en menos de 1 minuto, muy por debajo de los 2.7 minutos estimados inicialmente.  
+
+El proceso de limpieza identificó y corrigió 43 valores nulos en la serie de precios del petróleo (3.53% del total de 1,218 registros) mediante interpolación lineal, garantizando la integridad de los datos para el análisis de correlación. Ningún otro archivo presentó valores nulos o duplicados.    
+
+El EDA profundo generó 14 tablas en PostgreSQL que responden a todas las preguntas planteadas en el proyecto: 33 familias de productos, 54 tiendas únicas, 22 combinaciones ciudad-provincia, 56 meses de evolución temporal (2013-2017), 2 categorías de impacto de feriados (días feriados vs normales), 231 días con feriados analizados, 33 familias evaluadas por sensibilidad a feriados, 33 familias analizadas por impacto de promociones, 56 meses de correlación petróleo-ventas, 7 lags temporales analizados (2015-2016), 22 ciudades evaluadas por sensibilidad al petróleo, 54 tiendas analizadas por relación transacciones-ventas y 54 tiendas con ticket promedio calculado.
+
+## Recomendaciones
