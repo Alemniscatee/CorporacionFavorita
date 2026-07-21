@@ -1,0 +1,86 @@
+{
+  "ventas_consolidado": {
+    "tabla": "ventas_consolidado",
+    "filas": 3000888,
+    "columnas": 18,
+    "segundos": 191.6174
+  },
+  "eda_correlacion_petroleo_ventas": {
+    "tabla": "eda_correlacion_petroleo_ventas",
+    "filas": 56,
+    "columnas": 4,
+    "segundos": 0.0339
+  },
+  "eda_evolucion_temporal": {
+    "tabla": "eda_evolucion_temporal",
+    "filas": 56,
+    "columnas": 3,
+    "segundos": 0.0295
+  },
+  "eda_impacto_feriados": {
+    "tabla": "eda_impacto_feriados",
+    "filas": 2,
+    "columnas": 5,
+    "segundos": 0.0297
+  },
+  "eda_impacto_promociones": {
+    "tabla": "eda_impacto_promociones",
+    "filas": 33,
+    "columnas": 4,
+    "segundos": 0.0297
+  },
+  "eda_lag_petroleo_ventas": {
+    "tabla": "eda_lag_petroleo_ventas",
+    "filas": 7,
+    "columnas": 2,
+    "segundos": 0.0213
+  },
+  "eda_ranking_tiendas": {
+    "tabla": "eda_ranking_tiendas",
+    "filas": 54,
+    "columnas": 6,
+    "segundos": 0.03
+  },
+  "eda_sensibilidad_ciudad_petroleo": {
+    "tabla": "eda_sensibilidad_ciudad_petroleo",
+    "filas": 22,
+    "columnas": 2,
+    "segundos": 0.029
+  },
+  "eda_sensibilidad_familia_feriados": {
+    "tabla": "eda_sensibilidad_familia_feriados",
+    "filas": 33,
+    "columnas": 4,
+    "segundos": 0.0302
+  },
+  "eda_ticket_promedio_tiendas": {
+    "tabla": "eda_ticket_promedio_tiendas",
+    "filas": 54,
+    "columnas": 4,
+    "segundos": 0.0248
+  },
+  "eda_transacciones_vs_ventas": {
+    "tabla": "eda_transacciones_vs_ventas",
+    "filas": 54,
+    "columnas": 4,
+    "segundos": 0.024
+  },
+  "eda_ventas_entorno_feriados": {
+    "tabla": "eda_ventas_entorno_feriados",
+    "filas": 231,
+    "columnas": 3,
+    "segundos": 0.0425
+  },
+  "eda_ventas_por_ciudad_provincia": {
+    "tabla": "eda_ventas_por_ciudad_provincia",
+    "filas": 22,
+    "columnas": 4,
+    "segundos": 0.0294
+  },
+  "eda_ventas_por_familia": {
+    "tabla": "eda_ventas_por_familia",
+    "filas": 33,
+    "columnas": 4,
+    "segundos": 0.0315
+  }
+}

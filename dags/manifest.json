@@ -1,6 +1,6 @@
 {
   "nombre_proyecto": "CorporacionFavorita (Poryecto Analisis de datos)",
-  "version": "1.0.0",
+  "version": "1.0.1 (Prueba Github Actions)",
   "entorno": "Azure VM (Ubuntu Server)",
   "orquestador": "Apache Airflow via Docker",
   "procesamiento": "Polars (Python)",
