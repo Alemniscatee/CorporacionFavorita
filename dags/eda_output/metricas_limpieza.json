@@ -5,7 +5,7 @@
     "duplicados_eliminados": 0,
     "nulos_antes": {},
     "imputaciones": {},
-    "segundos": 0.8137
+    "segundos": 0.8278
   },
   "stores": {
     "filas_antes": 54,
@@ -13,7 +13,7 @@
     "duplicados_eliminados": 0,
     "nulos_antes": {},
     "imputaciones": {},
-    "segundos": 0.0005
+    "segundos": 0.0027
   },
   "transactions": {
     "filas_antes": 83488,
@@ -21,7 +21,7 @@
     "duplicados_eliminados": 0,
     "nulos_antes": {},
     "imputaciones": {},
-    "segundos": 0.0143
+    "segundos": 0.0126
   },
   "oil": {
     "filas_antes": 1218,

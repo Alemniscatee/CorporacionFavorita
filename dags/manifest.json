@@ -1,32 +1,56 @@
-name: Disparar Pipeline desde Manifest JSON
-
-on:
-  push:
-    paths:
-      # Reemplaza esta ruta por la ubicación exacta de tu manifest.json en el repositorio
-      - 'manifest.json' 
-
-jobs:
-  trigger-airflow-dag:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Disparar DAG en Airflow via API
-        run: |
-          echo "Se detectó un cambio en manifest.json. Disparando el DAG..."
-          
-          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
-            "http://${{ secrets.AIRFLOW_HOST }}:8080/api/v1/dags/favorita_pipeline/dagRuns" \
-            -H "Content-Type: application/json" \
-            --user "${{ secrets.AIRFLOW_USER }}:${{ secrets.AIRFLOW_PASSWORD }}" \
-            -d '{"conf": {}}')
-
-          HTTP_STATUS=$(echo "$RESPONSE" | tail -n 1)
-          
-          if [ "$HTTP_STATUS" -eq 200 ] || [ "$HTTP_STATUS" -eq 201 ]; then
-            echo "¡Éxito! El DAG 'favorita_pipeline' ha sido activado en Airflow."
-          else
-            echo "Error al disparar el DAG. Código HTTP: $HTTP_STATUS"
-            echo "Respuesta de la API:"
-            echo "$RESPONSE"
-            exit 1
-          fi
+{
+  "nombre_proyecto": "CorporacionFavorita (Proyecto Analisis de Datos)",
+  "version": "1.0.3",
+  "entorno": "Azure VM (Ubuntu Server)",
+  "orquestador": "Apache Airflow via Docker",
+  "procesamiento": "Polars (Python)",
+  "database": "PostgreSQL",
+  "estructura_pipeline": {
+    "nombre_dag": "favorita_pipeline",
+    "schedule": "Manual (Trigger via Manifest)",
+    "pasos": [
+      {
+        "orden": 1,
+        "task_id": "cargar_datos",
+        "script_path": "dags/scripts/cargar_datos.py",
+        "function": "cargar_todo",
+        "descripcion": "Carga archivos raw en DataFrames de Polars"
+      },
+      {
+        "orden": 2,
+        "task_id": "eda_inicial",
+        "script_path": "dags/scripts/eda_inicial.py",
+        "function": "ejecutar_eda_inicial",
+        "descripcion": "Genera diagnostico preliminar de los datos"
+      },
+      {
+        "orden": 3,
+        "task_id": "limpiar_datos",
+        "script_path": "dags/scripts/limpiar_datos.py",
+        "function": "ejecutar_limpieza",
+        "descripcion": "Tratamiento de nulos, tipos de datos y duplicados"
+      },
+      {
+        "orden": 4,
+        "task_id": "consolidar",
+        "script_path": "dags/scripts/consolidar.py",
+        "function": "consolidar",
+        "descripcion": "Unión de tablas limpias en dataframe maestro"
+      },
+      {
+        "orden": 5,
+        "task_id": "eda_profundo",
+        "script_path": "dags/scripts/eda_profundo.py",
+        "function": "ejecutar_eda_profundo",
+        "descripcion": "Calculo de metricas avanzadas y exportacion a Parquet"
+      },
+      {
+        "orden": 6,
+        "task_id": "exportar_postgres",
+        "script_path": "dags/scripts/exportar_postgres.py",
+        "function": "ejecutar_exportacion",
+        "descripcion": "Volcado por lotes (chunks) a PostgreSQL en Docker"
+      }
+    ]
+  }
+}
