@@ -1,54 +1,54 @@
 {
   "ventas_por_familia": {
     "filas": 33,
-    "segundos": 0.1704
+    "segundos": 0.1689
   },
   "ranking_tiendas": {
     "filas": 54,
-    "segundos": 0.0357
+    "segundos": 0.038
   },
   "ventas_por_ciudad_provincia": {
     "filas": 22,
-    "segundos": 0.1781
+    "segundos": 0.1768
   },
   "evolucion_temporal": {
     "filas": 56,
-    "segundos": 0.7309
+    "segundos": 0.7117
   },
   "impacto_feriados": {
     "filas": 2,
-    "segundos": 0.0348
+    "segundos": 0.0336
   },
   "ventas_entorno_feriados": {
     "filas": 231,
-    "segundos": 0.3578
+    "segundos": 0.3584
   },
   "sensibilidad_familia_feriados": {
     "filas": 33,
-    "segundos": 0.2392
+    "segundos": 0.2352
   },
   "impacto_promociones": {
     "filas": 33,
-    "segundos": 0.2119
+    "segundos": 0.2067
   },
   "correlacion_petroleo_ventas": {
     "filas": 56,
-    "segundos": 0.6998
+    "segundos": 0.8104
   },
   "lag_petroleo_ventas": {
     "filas": 7,
-    "segundos": 0.5443
+    "segundos": 0.532
   },
   "sensibilidad_ciudad_petroleo": {
     "filas": 22,
-    "segundos": 0.721
+    "segundos": 0.7337
   },
   "transacciones_vs_ventas": {
     "filas": 54,
-    "segundos": 0.0639
+    "segundos": 0.0733
   },
   "ticket_promedio_tiendas": {
     "filas": 54,
-    "segundos": 0.0643
+    "segundos": 0.0676
   }
 }

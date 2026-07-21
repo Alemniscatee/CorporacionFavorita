@@ -5,7 +5,7 @@
     "duplicados_eliminados": 0,
     "nulos_antes": {},
     "imputaciones": {},
-    "segundos": 0.8474
+    "segundos": 0.8137
   },
   "stores": {
     "filas_antes": 54,
@@ -13,7 +13,7 @@
     "duplicados_eliminados": 0,
     "nulos_antes": {},
     "imputaciones": {},
-    "segundos": 0.0024
+    "segundos": 0.0005
   },
   "transactions": {
     "filas_antes": 83488,
@@ -21,7 +21,7 @@
     "duplicados_eliminados": 0,
     "nulos_antes": {},
     "imputaciones": {},
-    "segundos": 0.0192
+    "segundos": 0.0143
   },
   "oil": {
     "filas_antes": 1218,
@@ -35,7 +35,7 @@
         "estrategia": "interpolacion_lineal + ffill/bfill en bordes"
       }
     },
-    "segundos": 0.003
+    "segundos": 0.0011
   },
   "holidays": {
     "filas_antes": 350,
@@ -43,6 +43,6 @@
     "duplicados_eliminados": 0,
     "nulos_antes": {},
     "imputaciones": {},
-    "segundos": 0.0005
+    "segundos": 0.0003
   }
 }
