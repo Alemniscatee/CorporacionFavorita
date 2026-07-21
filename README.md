@@ -432,11 +432,392 @@ Treemap que muestra el total de ventas por tienda y por tipo de establecimiento.
 Participación porcentual de cada familia de productos respecto al total de ventas.    
 
 ---
+# 8. Despliegue: instrucciones para reproducir el ambiente
+
+## 8.1. Requisitos previos
+
+Antes de ejecutar el proyecto se requiere disponer de:
+
+- Cuenta de Azure con crédito estudiantil activo.
+- Máquina virtual Ubuntu Server 22.04 LTS.
+- Cliente SSH.
+- Git.
+- Docker.
+- Docker Compose.
+- Power BI Desktop.
+
+---
+
+## 8.2. Paso a paso
+
+### Paso 1. Crear la máquina virtual
+
+Configuración recomendada:
+
+```text
+Sistema Operativo:
+Ubuntu Server 22.04 LTS
+
+Tamaño:
+B2s
+
+CPU:
+2 vCPU
+
+RAM:
+4 GB
+
+Usuario:
+azureuser
+
+Autenticación:
+SSH (clave pública)
+
+Puertos abiertos:
+22
+8080
+5432
+```
+
+---
+
+### Paso 2. Conectarse mediante SSH
+
+```bash
+ssh -i /ruta/clave.pem azureuser@<IP_PUBLICA>
+```
+
+---
+
+### Paso 3. Instalar Docker y Docker Compose
+
+```bash
+sudo apt update
+
+sudo apt upgrade -y
+
+sudo apt install docker.io docker-compose -y
+
+sudo usermod -aG docker $USER
+
+newgrp docker
+```
+
+Verificar la instalación:
+
+```bash
+docker --version
+
+docker compose version
+```
+
+---
+
+### Paso 4. Clonar el repositorio
+
+```bash
+git clone https://github.com/Alemniscatee/CorporacionFavorita.git ~/proyecto-data
+
+cd ~/proyecto-data
+```
+
+---
+
+### Paso 5. Copiar los datasets
+
+Crear la carpeta:
+
+```bash
+mkdir -p dags/datasets
+```
+
+Copiar dentro los cinco archivos:
+
+```text
+train.csv
+
+stores.csv
+
+transactions.csv
+
+oil.csv
+
+holidays_events.csv
+```
+
+**Importante:** los archivos CSV no deben subirse al repositorio GitHub.
+
+---
+
+### Paso 6. Crear el archivo `.env`
+
+```bash
+nano dags/.env
+```
+
+Contenido:
+
+```text
+DB_HOST=postgres_db
+DB_NAME=proyecto_favorita
+DB_USER=azureuser
+DB_PASSWORD=Analisisdedatos2026
+DB_PORT=5432
+```
+
+Guardar el archivo antes de continuar.
+
+---
+
+### Paso 7. Levantar los contenedores
+
+```bash
+docker compose up -d
+```
+
+Esperar hasta que Docker descargue todas las imágenes necesarias y cree los contenedores.
+
+---
+
+### Paso 8. Verificar el estado
+
+```bash
+docker ps
+```
+
+La salida debe mostrar al menos los siguientes contenedores:
+
+```text
+airflow_scheduler
+
+airflow_webserver
+
+postgres_db
+```
+### Paso 9. Acceder a la interfaz de Airflow
+
+Abrir el navegador y acceder a:
+
+```text
+http://<IP_PUBLICA>:8080
+```
+
+Credenciales:
+
+```text
+Usuario:
+azureuser
+
+Contraseña:
+Analisisdedatos2026
+```
+
+Una vez iniciada la sesión se visualizará el DAG **favorita_pipeline**.
+
+---
+
+### Paso 10. Ejecutar el DAG
+
+Existen dos formas de ejecutar el pipeline.
+
+#### Desde la interfaz web
+
+1. Activar el DAG.
+2. Seleccionar **Trigger DAG**.
+3. Monitorear el progreso desde **Grid View** o **Graph View**.
+
+#### Desde la terminal
+
+```bash
+docker exec airflow_scheduler airflow dags trigger favorita_pipeline
+```
+
+Para verificar el estado de ejecución:
+
+```bash
+docker exec airflow_scheduler airflow dags list-runs -d favorita_pipeline
+```
+
+---
+
+### Paso 11. Conectar Power BI
+
+Abrir **Power BI Desktop**.
+
+Seleccionar:
+
+```text
+Obtener datos
+```
+
+↓
+
+```text
+Base de datos PostgreSQL
+```
+
+↓
+
+Configurar:
+
+```text
+Servidor:
+<IP_PUBLICA_VM>
+
+Base de datos:
+proyecto_favorita
+
+Modo:
+DirectQuery
+```
+
+Credenciales:
+
+```text
+Usuario:
+azureuser
+
+Contraseña:
+Analisisdedatos2026
+```
+
+Una vez realizada la conexión estarán disponibles las **14 tablas** generadas por el pipeline para construir los dashboards.
+
+---
+
+## 8.3. Comandos de mantenimiento
+
+### Reiniciar todos los servicios
+
+```bash
+docker compose restart
+```
+
+---
+
+### Detener los contenedores
+
+```bash
+docker compose down
+```
+
+---
+
+### Levantar nuevamente los servicios
+
+```bash
+docker compose up -d
+```
+
+---
+
+### Ver los logs del Scheduler
+
+```bash
+docker logs -f airflow_scheduler
+```
+
+---
+
+### Ver los logs del Webserver
+
+```bash
+docker logs -f airflow_webserver
+```
+
+---
+
+### Ver los logs de PostgreSQL
+
+```bash
+docker logs -f postgres_db
+```
+
+---
+
+### Consultar las tablas creadas
+
+```bash
+docker exec -it postgres_db \
+psql -U azureuser \
+-d proyecto_favorita \
+-c "\dt"
+```
+
+---
+
+### Consultar el número de registros
+
+```sql
+SELECT COUNT(*)
+FROM ventas_consolidado;
+```
+
+---
+
+### Ejecutar el pipeline manualmente
+
+```bash
+cd ~/proyecto-data/dags/scripts
+
+python3 cargar_datos.py && \
+python3 limpiar_datos.py && \
+python3 consolidar.py && \
+python3 eda_inicial.py && \
+python3 eda_profundo.py && \
+python3 exportar_postgres.py
+```
+
+---
+
+### Eliminar los contenedores
+
+```bash
+docker compose down
+```
+
+---
+
+### Reconstruir completamente el ambiente
+
+```bash
+docker compose down
+
+docker compose build --no-cache
+
+docker compose up -d
+```
+
+---
+
+### Verificar el estado de Docker
+
+```bash
+docker ps
+```
+
+---
+
+### Comprobar el uso de recursos
+
+```bash
+docker stats
+```
 ## Conclusiones 
 El sistema procesa 3,000,888 registros en un tiempo total de 12.056 segundos para la carga, 12.934 segundos para la limpieza y 12.158 segundos para la consolidación, demostrando la alta eficiencia de Polars para el manejo de datos masivos. El pipeline completo se ejecuta en menos de 1 minuto, muy por debajo de los 2.7 minutos estimados inicialmente.  
 
-El proceso de limpieza identificó y corrigió 43 valores nulos en la serie de precios del petróleo (3.53% del total de 1,218 registros) mediante interpolación lineal, garantizando la integridad de los datos para el análisis de correlación. Ningún otro archivo presentó valores nulos o duplicados.    
+El proceso de limpieza identificó y corrigió 43 valores nulos en la serie de precios del petróleo 3.53% del total de 1,218 registros mediante interpolación lineal, garantizando la integridad de los datos para el análisis de correlación. Ningún otro archivo presentó valores nulos o duplicados.    
 
-El EDA profundo generó 14 tablas en PostgreSQL que responden a todas las preguntas planteadas en el proyecto: 33 familias de productos, 54 tiendas únicas, 22 combinaciones ciudad-provincia, 56 meses de evolución temporal (2013-2017), 2 categorías de impacto de feriados (días feriados vs normales), 231 días con feriados analizados, 33 familias evaluadas por sensibilidad a feriados, 33 familias analizadas por impacto de promociones, 56 meses de correlación petróleo-ventas, 7 lags temporales analizados (2015-2016), 22 ciudades evaluadas por sensibilidad al petróleo, 54 tiendas analizadas por relación transacciones-ventas y 54 tiendas con ticket promedio calculado.
+El EDA profundo generó 14 tablas en PostgreSQL que responden a todas las preguntas planteadas en el proyecto: 33 familias de productos, 54 tiendas únicas, 22 combinaciones ciudad-provincia, 56 meses de evolución temporal (2013-2017), 2 categorías de impacto de feriados (días feriados vs normales), 231 días con feriados analizados, 33 familias evaluadas por sensibilidad a feriados, 33 familias analizadas por impacto de promociones, 56 meses de correlación petróleo-ventas, 7 lags temporales analizados (2015-2016), 22 ciudades evaluadas por sensibilidad al petróleo, 54 tiendas analizadas por relación transacciones-ventas y 54 tiendas con ticket promedio calculado.  
 
-## Recomendaciones
+Los feriados nacionales presentan un ticket promedio de 419.34 USD por día, superando los 352.37 USD de días normales, lo que representa un incremento del 19%. Este hallazgo cuantifica el impacto positivo de los feriados en el consumo y permite anticipar picos de demanda en fechas festivas.  
+
+
+## Recomendaciones  
+Crear índices en las columnas date, store_nbr y family para acelerar las consultas en Power BI y reducir el tiempo de respuesta en el dashboard.  
+
+Dividir la tabla ventas_consolidado en particiones por año (2013-2017) para mejorar el rendimiento en consultas históricas y facilitar la gestión de datos antiguos.  
+
+Configurar una IP pública estática en Azure para evitar cambios de IP en la VM y simplificar la conexión de Power BI, eliminando la necesidad de actualizar manualmente las credenciales de conexión en caso de reinicio de la VM.
+
+Implementar un sistema de monitoreo de recursos (CPU, memoria, disco) en la VM de Azure para detectar cuellos de botella y planificar escalabilidad antes de que los recursos se agoten.
