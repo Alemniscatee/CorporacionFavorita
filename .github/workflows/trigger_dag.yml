@@ -1,0 +1,30 @@
+name: Disparar Pipeline desde Manifest JSON
+
+on:
+  push:
+    paths:
+      # Reemplaza esta ruta por la ubicación exacta de tu manifest.json en el repositorio
+      - '/dags/manifest.json' 
+
+jobs:
+  trigger-airflow-dag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Disparar DAG en Airflow via API
+        run: |
+          echo "Se detectó un cambio en manifest.json. Disparando el DAG..."
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            "http://${{ secrets.AIRFLOW_HOST }}:8080/api/v1/dags/favorita_pipeline/dagRuns" \
+            -H "Content-Type: application/json" \
+            --user "${{ secrets.AIRFLOW_USER }}:${{ secrets.AIRFLOW_PASSWORD }}" \
+            -d '{"conf": {}}')
+
+          HTTP_STATUS=$(echo "$RESPONSE" | tail -n 1)
+          if [ "$HTTP_STATUS" -eq 200 ] || [ "$HTTP_STATUS" -eq 201 ]; then
+            echo "¡Éxito! El DAG 'favorita_pipeline' ha sido activado en Airflow."
+          else
+            echo "Error al disparar el DAG. Código HTTP: $HTTP_STATUS"
+            echo "Respuesta de la API:"
+            echo "$RESPONSE"
+            exit 1
+          fi
