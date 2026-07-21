@@ -15,88 +15,304 @@ El ecosistema tecnológico se compone de los siguientes pilares:
 *   **Motor de Procesamiento:** Scripts independientes en Python optimizados mediante **Polars**.
 *   **Almacenamiento:** Instancia relacional de PostgreSQL para persistir los datos limpios y transformados listos para analítica.
 ## Diagrama de arquitectura de la solución
+# 2. Descripción de los archivos del dataset y su rol en el pipeline
 
-## Arquitectura del Proyecto
+Los archivos residen en `dags/datasets/` y no se suben al repositorio.
+
+| Archivo | Registros | Columnas | Rol en el pipeline |
+|---------|-----------|----------|-------------------|
+| `train.csv` | 3,000,888 | 6 | Fuente principal de ventas diarias por tienda, familia y promoción. |
+| `stores.csv` | 54 | 5 | Metadata de tiendas: ciudad, provincia, tipo y clúster. Se usa para enriquecer datos geográficos. |
+| `transactions.csv` | 83,488 | 3 | Número de transacciones por tienda y fecha. Permite análisis de ticket promedio. |
+| `oil.csv` | 1,218 | 2 | Precio diario del petróleo (dcoilwtico). Contiene nulos en fines de semana (43 valores, 3.53%). |
+| `holidays_events.csv` | 350 | 6 | Feriados nacionales, regionales y locales con tipo y bandera de transferencia. |
+
+**Nota:** `test.csv` no se utiliza (corresponde a predicción de Kaggle).
+
+
+
+# 3. Diagrama de arquitectura de la solución
 
 ```text
-┌───────────────────────────────────────────────────────────────────────────┐
+┌────────────────────────────────────────────────────────────────────────────┐
 │                          AZURE VM (Ubuntu 22.04)                          │
 │                                                                           │
-│  ┌────────────────────────────────────────────────────────────────────┐   │
-│  │                         DOCKER COMPOSE                             │   │
-│  │                                                                    │   │
-│  │  ┌───────────────┐  ┌───────────────┐  ┌───────────────────────┐   │   │
-│  │  │   Airflow     │  │   Airflow     │  │     PostgreSQL        │   │   │
-│  │  │  Scheduler    │  │  Webserver    │  │   (proyecto_favorita) │   │   │
-│  │  │               │  │   Puerto 8080 │  │                       │   │   │
-│  │  └───────┬───────┘  └───────────────┘  └───────────┬───────────┘   │   │
-│  │          │                                         │               │   │
-│  │  ┌───────▼─────────────────────────────────────────▼────────────┐  │   │
-│  │  │                 Scripts (Python + Polars)                    │  │   │
-│  │  │                                                              │  │   │
-│  │  │  ┌──────────┐  ┌──────────┐  ┌─────────────┐  ┌────────────┐ │  │   │
-│  │  │  │  Carga   │→ │ Limpieza │→ │Consolidación│→ │EDA Profundo│ │  │   │
-│  │  │  └──────────┘  └──────────┘  └─────────────┘  └────────────┘ │  │   │
-│  │  │                                                              │  │   │
-│  │  │  ┌────────────────────────────────────────────────────────┐  │  │   │
-│  │  │  │ Exportación a PostgreSQL (14 tablas analíticas)        │  │  │   │
-│  │  │  └────────────────────────────────────────────────────────┘  │  │   │
-│  │  └──────────────────────────────────────────────────────────────┘  │   │
-│  └────────────────────────────────────────────────────────────────────┘   │
+│  ┌────────────────────────────────────────────────────────────────────┐  │
+│  │                         DOCKER COMPOSE                             │  │
+│  │                                                                    │  │
+│  │  ┌───────────────┐  ┌───────────────┐  ┌───────────────────────┐   │  │
+│  │  │   Airflow     │  │   Airflow     │  │     PostgreSQL        │   │  │
+│  │  │  Scheduler    │  │  Webserver    │  │    (proyecto_         │   │  │
+│  │  │               │  │   Puerto      │  │     favorita)         │   │  │
+│  │  │               │  │    8080       │  │                       │   │  │
+│  │  └───────┬───────┘  └───────────────┘  └───────────┬───────────┘   │  │
+│  │          │                                         │               │  │
+│  │  ┌───────▼─────────────────────────────────────────▼────────────┐  │  │
+│  │  │                 SCRIPTS (Python + Polars)                    │  │  │
+│  │  │                                                              │  │  │
+│  │  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌────────────┐     │  │  │
+│  │  │  │  Carga   │→│ Limpieza │→│Consolida-│→│EDA Profundo│     │  │  │
+│  │  │  └──────────┘  └──────────┘  └──────────┘  └────────────┘     │  │  │
+│  │  │                                                              │  │  │
+│  │  │  ┌──────────────────────────────────────────────────────┐     │  │  │
+│  │  │  │  Exportación a PostgreSQL (14 tablas)                │     │  │  │
+│  │  │  └──────────────────────────────────────────────────────┘     │  │  │
+│  │  └──────────────────────────────────────────────────────────────┘ │  │
+│  └────────────────────────────────────────────────────────────────────┘  │
 │                                                                           │
 │  ┌────────────────────────────────────────────────────────────────────┐   │
 │  │               DATOS LOCALES (dags/datasets/)                       │   │
-│  │ train.csv | stores.csv | transactions.csv | oil.csv | holidays     │   │
+│  │ train.csv | stores.csv | transactions.csv | oil.csv | holidays    │   │
 │  └────────────────────────────────────────────────────────────────────┘   │
-└───────────────────────────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────────────────────────┘
                                     │
                                     ▼ (DirectQuery)
+
 ┌────────────────────────────────────────────────────────────────────────────┐
-│                           POWER BI DESKTOP                                 │
+│                       POWER BI DESKTOP                                    │
 │                                                                            │
-│  Dashboard conectado directamente a PostgreSQL mediante DirectQuery para   │
-│  visualizar los datos procesados por el pipeline en tiempo casi real.      │
+│  ┌────────────────────────────────────────────────────────────────────┐    │
+│  │                         DASHBOARD                                  │    │
+│  │                                                                    │    │
+│  │ • Ventas por familia de producto                                   │    │
+│  │ • Ranking de tiendas                                               │    │
+│  │ • Evolución mensual 2013–2017                                      │    │
+│  │ • Impacto de feriados                                              │    │
+│  │ • Mapa de ventas por ciudad/provincia                              │    │
+│  │ • Correlación petróleo–ventas                                      │    │
+│  │ • Comparativo con/sin promoción                                    │    │
+│  │ • Ticket promedio por tienda                                       │    │
+│  └────────────────────────────────────────────────────────────────────┘    │
 └────────────────────────────────────────────────────────────────────────────┘
 ```
 ---
+---
+# 4. Descripción del DAG: tareas, dependencias y configuración
 
-# Estructura del Pipeline
+## Identificación
 
-El pipeline de datos está orquestado mediante **Apache Airflow** y ejecuta seis etapas de forma secuencial. Cada tarea depende de la finalización exitosa de la anterior, garantizando la consistencia de la información antes de almacenarla en la base de datos.
+- **DAG ID:** `favorita_pipeline`
+- **Archivo:** `dags/dag_migracion_favorita.py`
+- **Schedule:** `None` (ejecución manual o por GitHub Actions)
 
-Si una etapa crítica falla, Airflow bloquea automáticamente las tareas posteriores para preservar la integridad del proceso.
+## Tareas (orden secuencial)
 
-```text
-[descargar_datos]
-        │
-        ▼
-[limpiar_datos]
-        │
-        ▼
-[transformar_datos]
-        │
-        ▼
-[validar_calidad]
-        │
-        ▼
-[cargar_postgres]
-        │
-        ▼
-[generar_reporte]
-```
-
-## Descripción de las etapas
-
-| Etapa | Descripción |
-|-------|-------------|
-| **Descargar datos** | Obtiene los archivos CSV utilizados por el proyecto. |
-| **Limpiar datos** | Corrige tipos de datos, elimina registros inválidos y trata valores faltantes. |
-| **Transformar datos** | Consolida la información y genera las tablas analíticas utilizando Polars. |
-| **Validar calidad** | Comprueba duplicados, consistencia e integridad antes de la carga. |
-| **Cargar PostgreSQL** | Exporta las tablas finales a la base de datos `proyecto_favorita`. |
-| **Generar reporte** | Registra métricas y resultados de la ejecución del pipeline. |
+| Orden | Task ID | Script | Función |
+|-------|---------|--------|---------|
+| 1 | cargar_datos | cargar_datos.py | Lee los 5 CSV con Polars. Falla si algún archivo no existe. |
+| 2 | eda_inicial | eda_inicial.py | Genera diagnóstico: nulos, duplicados, tipos, rango de fechas. Guarda metricas_iniciales.json. |
+| 3 | limpiar_datos | limpiar_datos.py | Elimina duplicados (0), imputa nulos de `oil` mediante interpolación lineal y corrige tipos. |
+| 4 | consolidar | consolidar.py | Realiza joins secuenciales usando `store_nbr` y `date`. Resultado: 3,000,888 filas × 23 columnas. |
+| 5 | eda_profundo | eda_profundo.py | Genera 13 métricas de análisis (ventas por familia, ranking, estacionalidad, correlaciones, etc.). |
+| 6 | exportar_postgres | exportar_postgres.py | Exporta la tabla consolidada y las 13 tablas de EDA a PostgreSQL. |
 
 ---
+## Configuración del DAG
+
+```python
+default_args = {
+    'owner': 'user',
+    'retries': 1,
+    'retry_delay': timedelta(minutes=5),
+    'email_on_failure': False,
+    'email_on_retry': False
+}
+
+dag = DAG(
+    'favorita_pipeline',
+    default_args=default_args,
+    schedule_interval=None,
+    start_date=datetime(2026, 7, 10),
+    catchup=False,
+    tags=['etl', 'polars', 'postgres']
+)
+```
+
+## Dependencias (flujo)
+
+```text
+cargar_datos
+      │
+      ▼
+eda_inicial
+      │
+      ▼
+limpiar_datos
+      │
+      ▼
+consolidar
+      │
+      ▼
+eda_profundo
+      │
+      ▼
+exportar_postgres
+```
+
+O utilizando la sintaxis de Airflow:
+
+```python
+cargar_datos >> eda_inicial >> limpiar_datos >> consolidar >> eda_profundo >> exportar_postgres
+```
+
+---
+
+# 5. Proceso del pipeline: descripción de cada etapa con capturas de Airflow
+
+## 5.1. Vista del DAG en la UI de Airflow
+
+El DAG aparece listado con sus **6 tareas** en secuencia lineal, permitiendo monitorear el estado de cada etapa del pipeline desde la interfaz web de Apache Airflow.
+
+---
+
+## 5.2. Logs de cada tarea
+
+### Tarea 1: `cargar_datos`
+
+```text
+[carga_datos] train          -> 3,000,888 filas x 6 cols (8.815s)
+[carga_datos] stores         ->        54 filas x 5 cols (0.001s)
+[carga_datos] transactions   ->    83,488 filas x 3 cols (0.010s)
+[carga_datos] oil            ->     1,218 filas x 2 cols (0.001s)
+[carga_datos] holidays       ->       350 filas x 6 cols (0.005s)
+```
+
+La tarea verifica la existencia de los cinco archivos CSV y los carga utilizando **Polars**, almacenándolos temporalmente para las siguientes etapas.
+
+---
+
+### Tarea 2: `eda_inicial`
+
+```text
+[eda_inicial] Reporte guardado:
+/opt/airflow/dags/eda_output/metricas_iniciales.json
+
+[eda_inicial] Nulos detectados:
+oil.dcoilwtico = 43 (3.53%)
+
+[eda_inicial] Rango fechas:
+2013-01-01 a 2017-08-15
+```
+
+Durante esta etapa se generan métricas de calidad de datos, incluyendo:
+
+- Valores nulos.
+- Registros duplicados.
+- Tipos de datos.
+- Distribución temporal.
+- Estadísticas descriptivas.
+
+El resultado se almacena en el archivo `metricas_iniciales.json`.
+
+---
+
+### Tarea 3: `limpiar_datos`
+
+```text
+[limpiar_datos]
+
+train:
+3,000,888 → 3,000,888
+(dup=0, nulos=0)
+
+oil:
+1,218 → 1,218
+(nulos imputados=1)
+
+stores:
+54 → 54
+(dup=0, nulos=0)
+
+transactions:
+83,488 → 83,488
+(dup=0)
+
+holidays:
+350 → 350
+(dup=0)
+```
+
+Las operaciones realizadas incluyen:
+
+- Eliminación de registros duplicados.
+- Conversión de tipos de datos.
+- Interpolación lineal para completar los valores faltantes del precio del petróleo.
+- Validación de integridad de las tablas.
+
+---
+
+### Tarea 4: `consolidar`
+
+```text
+[consolidar]
+
+Realizando joins secuenciales...
+
+train + stores:
+3,000,888 filas
+
++ transactions:
+3,000,888 filas
+
++ oil:
+3,000,888 filas
+
++ holidays:
+3,000,888 filas
+
+DataFrame consolidado:
+3,000,888 filas x 23 columnas
+```
+
+En esta fase se integran todas las fuentes mediante **joins** utilizando los campos:
+
+- `store_nbr`
+- `date`
+
+El resultado es una única tabla consolidada lista para el análisis.
+
+---
+
+### Tarea 5: `eda_profundo`
+
+```text
+[eda_profundo]
+
+Generando 13 métricas de análisis...
+
+eda_ventas_por_familia: 33 registros
+
+eda_ranking_tiendas: 54 registros
+
+eda_evolucion_temporal: 56 registros
+
+eda_correlacion_petroleo_ventas: 56 registros
+
+Todas las métricas generadas exitosamente
+```
+
+El análisis exploratorio profundo genera las tablas analíticas que posteriormente serán exportadas a PostgreSQL para su consumo desde Power BI.
+
+---
+
+### Tarea 6: `exportar_postgres`
+
+```text
+[exportar]
+
+Conectando a PostgreSQL
+
+Tabla ventas_consolidado:
+3,000,888 registros insertados
+
+Tablas EDA:
+13 tablas creadas
+
+Exportación completada
+```
+
+La información consolidada y todas las métricas generadas son almacenadas en PostgreSQL para permitir consultas mediante DirectQuery desde Power BI.
+
 # 6. Métricas del pipeline
 
 ## 6.1 Tiempo de ejecución por tarea
