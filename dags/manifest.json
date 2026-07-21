@@ -1,6 +1,6 @@
 {
   "nombre_proyecto": "CorporacionFavorita (Proyecto Analisis de Datos)",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "entorno": "Azure VM (Ubuntu Server)",
   "orquestador": "Apache Airflow via Docker",
   "procesamiento": "Polars (Python)",
