@@ -29,86 +29,63 @@ Los archivos residen en `dags/datasets/` y no se suben al repositorio.
 
 **Nota:** `test.csv` no se utiliza (corresponde a predicción de Kaggle).
 
-## Arquitectura del Proyecto
+
+
+# 3. Diagrama de arquitectura de la solución
 
 ```text
-┌───────────────────────────────────────────────────────────────────────────┐
+┌────────────────────────────────────────────────────────────────────────────┐
 │                          AZURE VM (Ubuntu 22.04)                          │
 │                                                                           │
-│  ┌────────────────────────────────────────────────────────────────────┐   │
-│  │                         DOCKER COMPOSE                             │   │
-│  │                                                                    │   │
-│  │  ┌───────────────┐  ┌───────────────┐  ┌───────────────────────┐   │   │
-│  │  │   Airflow     │  │   Airflow     │  │     PostgreSQL        │   │   │
-│  │  │  Scheduler    │  │  Webserver    │  │   (proyecto_favorita) │   │   │
-│  │  │               │  │   Puerto 8080 │  │                       │   │   │
-│  │  └───────┬───────┘  └───────────────┘  └───────────┬───────────┘   │   │
-│  │          │                                         │               │   │
-│  │  ┌───────▼─────────────────────────────────────────▼────────────┐  │   │
-│  │  │                 Scripts (Python + Polars)                    │  │   │
-│  │  │                                                              │  │   │
-│  │  │  ┌──────────┐  ┌──────────┐  ┌─────────────┐  ┌────────────┐ │  │   │
-│  │  │  │  Carga   │→ │ Limpieza │→ │Consolidación│→ │EDA Profundo│ │  │   │
-│  │  │  └──────────┘  └──────────┘  └─────────────┘  └────────────┘ │  │   │
-│  │  │                                                              │  │   │
-│  │  │  ┌────────────────────────────────────────────────────────┐  │  │   │
-│  │  │  │ Exportación a PostgreSQL (14 tablas analíticas)        │  │  │   │
-│  │  │  └────────────────────────────────────────────────────────┘  │  │   │
-│  │  └──────────────────────────────────────────────────────────────┘  │   │
-│  └────────────────────────────────────────────────────────────────────┘   │
+│  ┌────────────────────────────────────────────────────────────────────┐  │
+│  │                         DOCKER COMPOSE                             │  │
+│  │                                                                    │  │
+│  │  ┌───────────────┐  ┌───────────────┐  ┌───────────────────────┐   │  │
+│  │  │   Airflow     │  │   Airflow     │  │     PostgreSQL        │   │  │
+│  │  │  Scheduler    │  │  Webserver    │  │    (proyecto_         │   │  │
+│  │  │               │  │   Puerto      │  │     favorita)         │   │  │
+│  │  │               │  │    8080       │  │                       │   │  │
+│  │  └───────┬───────┘  └───────────────┘  └───────────┬───────────┘   │  │
+│  │          │                                         │               │  │
+│  │  ┌───────▼─────────────────────────────────────────▼────────────┐  │  │
+│  │  │                 SCRIPTS (Python + Polars)                    │  │  │
+│  │  │                                                              │  │  │
+│  │  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌────────────┐     │  │  │
+│  │  │  │  Carga   │→│ Limpieza │→│Consolida-│→│EDA Profundo│     │  │  │
+│  │  │  └──────────┘  └──────────┘  └──────────┘  └────────────┘     │  │  │
+│  │  │                                                              │  │  │
+│  │  │  ┌──────────────────────────────────────────────────────┐     │  │  │
+│  │  │  │  Exportación a PostgreSQL (14 tablas)                │     │  │  │
+│  │  │  └──────────────────────────────────────────────────────┘     │  │  │
+│  │  └──────────────────────────────────────────────────────────────┘ │  │
+│  └────────────────────────────────────────────────────────────────────┘  │
 │                                                                           │
 │  ┌────────────────────────────────────────────────────────────────────┐   │
 │  │               DATOS LOCALES (dags/datasets/)                       │   │
-│  │ train.csv | stores.csv | transactions.csv | oil.csv | holidays     │   │
+│  │ train.csv | stores.csv | transactions.csv | oil.csv | holidays    │   │
 │  └────────────────────────────────────────────────────────────────────┘   │
-└───────────────────────────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────────────────────────┘
                                     │
                                     ▼ (DirectQuery)
+
 ┌────────────────────────────────────────────────────────────────────────────┐
-│                           POWER BI DESKTOP                                 │
+│                       POWER BI DESKTOP                                    │
 │                                                                            │
-│  Dashboard conectado directamente a PostgreSQL mediante DirectQuery para   │
-│  visualizar los datos procesados por el pipeline en tiempo casi real.      │
+│  ┌────────────────────────────────────────────────────────────────────┐    │
+│  │                         DASHBOARD                                  │    │
+│  │                                                                    │    │
+│  │ • Ventas por familia de producto                                   │    │
+│  │ • Ranking de tiendas                                               │    │
+│  │ • Evolución mensual 2013–2017                                      │    │
+│  │ • Impacto de feriados                                              │    │
+│  │ • Mapa de ventas por ciudad/provincia                              │    │
+│  │ • Correlación petróleo–ventas                                      │    │
+│  │ • Comparativo con/sin promoción                                    │    │
+│  │ • Ticket promedio por tienda                                       │    │
+│  └────────────────────────────────────────────────────────────────────┘    │
 └────────────────────────────────────────────────────────────────────────────┘
 ```
 ---
-
-# Estructura del Pipeline
-
-El pipeline de datos está orquestado mediante **Apache Airflow** y ejecuta seis etapas de forma secuencial. Cada tarea depende de la finalización exitosa de la anterior, garantizando la consistencia de la información antes de almacenarla en la base de datos.
-
-Si una etapa crítica falla, Airflow bloquea automáticamente las tareas posteriores para preservar la integridad del proceso.
-
-```text
-[descargar_datos]
-        │
-        ▼
-[limpiar_datos]
-        │
-        ▼
-[transformar_datos]
-        │
-        ▼
-[validar_calidad]
-        │
-        ▼
-[cargar_postgres]
-        │
-        ▼
-[generar_reporte]
-```
-
-## Descripción de las etapas
-
-| Etapa | Descripción |
-|-------|-------------|
-| **Descargar datos** | Obtiene los archivos CSV utilizados por el proyecto. |
-| **Limpiar datos** | Corrige tipos de datos, elimina registros inválidos y trata valores faltantes. |
-| **Transformar datos** | Consolida la información y genera las tablas analíticas utilizando Polars. |
-| **Validar calidad** | Comprueba duplicados, consistencia e integridad antes de la carga. |
-| **Cargar PostgreSQL** | Exporta las tablas finales a la base de datos `proyecto_favorita`. |
-| **Generar reporte** | Registra métricas y resultados de la ejecución del pipeline. |
-
 ---
 # 6. Métricas del pipeline
 
