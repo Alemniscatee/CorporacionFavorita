@@ -13,8 +13,8 @@ def _load_module(name, filename):
     spec.loader.exec_module(mod)
     return mod
 
-carga = _load_module("carga", "01_carga.py")
-limpieza = _load_module("limpieza", "03_limpieza.py")
+carga = _load_module("carga", "cargar_datos.py")
+limpieza = _load_module("limpieza", "limpiar_datos.py")
 
 
 def _preparar_holidays_por_dia(holidays: pl.DataFrame) -> pl.DataFrame:

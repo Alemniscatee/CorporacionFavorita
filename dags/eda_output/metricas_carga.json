@@ -1,0 +1,27 @@
+{
+  "train": {
+    "filas": 3000888,
+    "columnas": 6,
+    "segundos": 9.3582
+  },
+  "stores": {
+    "filas": 54,
+    "columnas": 5,
+    "segundos": 0.0003
+  },
+  "transactions": {
+    "filas": 83488,
+    "columnas": 3,
+    "segundos": 0.0097
+  },
+  "oil": {
+    "filas": 1218,
+    "columnas": 2,
+    "segundos": 0.0005
+  },
+  "holidays": {
+    "filas": 350,
+    "columnas": 6,
+    "segundos": 0.0048
+  }
+}

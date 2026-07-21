@@ -1,0 +1,48 @@
+{
+  "train": {
+    "filas_antes": 3000888,
+    "filas_despues": 3000888,
+    "duplicados_eliminados": 0,
+    "nulos_antes": {},
+    "imputaciones": {},
+    "segundos": 0.638
+  },
+  "stores": {
+    "filas_antes": 54,
+    "filas_despues": 54,
+    "duplicados_eliminados": 0,
+    "nulos_antes": {},
+    "imputaciones": {},
+    "segundos": 0.0003
+  },
+  "transactions": {
+    "filas_antes": 83488,
+    "filas_despues": 83488,
+    "duplicados_eliminados": 0,
+    "nulos_antes": {},
+    "imputaciones": {},
+    "segundos": 0.0121
+  },
+  "oil": {
+    "filas_antes": 1218,
+    "filas_despues": 1218,
+    "duplicados_eliminados": 0,
+    "nulos_antes": {
+      "dcoilwtico": 43
+    },
+    "imputaciones": {
+      "dcoilwtico": {
+        "estrategia": "interpolacion_lineal + ffill/bfill en bordes"
+      }
+    },
+    "segundos": 0.001
+  },
+  "holidays": {
+    "filas_antes": 350,
+    "filas_despues": 350,
+    "duplicados_eliminados": 0,
+    "nulos_antes": {},
+    "imputaciones": {},
+    "segundos": 0.0003
+  }
+}

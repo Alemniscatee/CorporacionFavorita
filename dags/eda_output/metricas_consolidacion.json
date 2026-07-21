@@ -1,0 +1,7 @@
+{
+  "filas_train_base": 3000888,
+  "filas_consolidado": 3000888,
+  "columnas_consolidado": 18,
+  "segundos": 0.4194,
+  "filas_agregadas_por_join": 0
+}

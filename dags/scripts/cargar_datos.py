@@ -1,5 +1,6 @@
 # Tarea 1 del DAG (favorita_pipeline): cargar_datos
 
+import json
 import csv
 import time
 import polars as pl

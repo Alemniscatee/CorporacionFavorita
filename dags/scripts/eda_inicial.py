@@ -7,7 +7,7 @@ import polars as pl
 from pathlib import Path
 
 import importlib.util
-spec = importlib.util.spec_from_file_location("carga", Path(__file__).parent / "01_carga.py")
+spec = importlib.util.spec_from_file_location("carga", Path(__file__).parent / "cargar_datos.py")
 carga = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(carga)
 

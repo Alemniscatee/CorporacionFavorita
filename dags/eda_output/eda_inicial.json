@@ -1,0 +1,190 @@
+{
+  "eda": "inicial (pre-limpieza)",
+  "archivos": {
+    "train": {
+      "archivo": "train.csv",
+      "filas": 3000888,
+      "columnas": 6,
+      "tipos_de_dato": {
+        "id": "Int64",
+        "date": "Date",
+        "store_nbr": "Int64",
+        "family": "String",
+        "sales": "Float64",
+        "onpromotion": "Int64"
+      },
+      "nulos_por_columna": {
+        "id": {
+          "nulos": 0,
+          "porcentaje": 0.0
+        },
+        "date": {
+          "nulos": 0,
+          "porcentaje": 0.0
+        },
+        "store_nbr": {
+          "nulos": 0,
+          "porcentaje": 0.0
+        },
+        "family": {
+          "nulos": 0,
+          "porcentaje": 0.0
+        },
+        "sales": {
+          "nulos": 0,
+          "porcentaje": 0.0
+        },
+        "onpromotion": {
+          "nulos": 0,
+          "porcentaje": 0.0
+        }
+      },
+      "filas_duplicadas": 0,
+      "rango_fechas": {
+        "date": {
+          "min": "2013-01-01",
+          "max": "2017-08-15"
+        }
+      }
+    },
+    "stores": {
+      "archivo": "stores.csv",
+      "filas": 54,
+      "columnas": 5,
+      "tipos_de_dato": {
+        "store_nbr": "Int64",
+        "city": "String",
+        "state": "String",
+        "type": "String",
+        "cluster": "Int64"
+      },
+      "nulos_por_columna": {
+        "store_nbr": {
+          "nulos": 0,
+          "porcentaje": 0.0
+        },
+        "city": {
+          "nulos": 0,
+          "porcentaje": 0.0
+        },
+        "state": {
+          "nulos": 0,
+          "porcentaje": 0.0
+        },
+        "type": {
+          "nulos": 0,
+          "porcentaje": 0.0
+        },
+        "cluster": {
+          "nulos": 0,
+          "porcentaje": 0.0
+        }
+      },
+      "filas_duplicadas": 0,
+      "rango_fechas": {}
+    },
+    "transactions": {
+      "archivo": "transactions.csv",
+      "filas": 83488,
+      "columnas": 3,
+      "tipos_de_dato": {
+        "date": "Date",
+        "store_nbr": "Int64",
+        "transactions": "Int64"
+      },
+      "nulos_por_columna": {
+        "date": {
+          "nulos": 0,
+          "porcentaje": 0.0
+        },
+        "store_nbr": {
+          "nulos": 0,
+          "porcentaje": 0.0
+        },
+        "transactions": {
+          "nulos": 0,
+          "porcentaje": 0.0
+        }
+      },
+      "filas_duplicadas": 0,
+      "rango_fechas": {
+        "date": {
+          "min": "2013-01-01",
+          "max": "2017-08-15"
+        }
+      }
+    },
+    "oil": {
+      "archivo": "oil.csv",
+      "filas": 1218,
+      "columnas": 2,
+      "tipos_de_dato": {
+        "date": "Date",
+        "dcoilwtico": "Float64"
+      },
+      "nulos_por_columna": {
+        "date": {
+          "nulos": 0,
+          "porcentaje": 0.0
+        },
+        "dcoilwtico": {
+          "nulos": 43,
+          "porcentaje": 3.53
+        }
+      },
+      "filas_duplicadas": 0,
+      "rango_fechas": {
+        "date": {
+          "min": "2013-01-01",
+          "max": "2017-08-31"
+        }
+      }
+    },
+    "holidays": {
+      "archivo": "holidays.csv",
+      "filas": 350,
+      "columnas": 6,
+      "tipos_de_dato": {
+        "date": "Date",
+        "type": "String",
+        "locale": "String",
+        "locale_name": "String",
+        "description": "String",
+        "transferred": "Boolean"
+      },
+      "nulos_por_columna": {
+        "date": {
+          "nulos": 0,
+          "porcentaje": 0.0
+        },
+        "type": {
+          "nulos": 0,
+          "porcentaje": 0.0
+        },
+        "locale": {
+          "nulos": 0,
+          "porcentaje": 0.0
+        },
+        "locale_name": {
+          "nulos": 0,
+          "porcentaje": 0.0
+        },
+        "description": {
+          "nulos": 0,
+          "porcentaje": 0.0
+        },
+        "transferred": {
+          "nulos": 0,
+          "porcentaje": 0.0
+        }
+      },
+      "filas_duplicadas": 0,
+      "rango_fechas": {
+        "date": {
+          "min": "2012-03-02",
+          "max": "2017-12-26"
+        }
+      }
+    }
+  }
+}

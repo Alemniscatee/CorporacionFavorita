@@ -14,9 +14,9 @@ def _load_module(name, filename):
     spec.loader.exec_module(mod)
     return mod
 
-carga = _load_module("carga", "01_carga.py")
-limpieza = _load_module("limpieza", "03_limpieza.py")
-consolidacion = _load_module("consolidacion", "04_consolidar.py")
+carga = _load_module("carga", "cargar_datos.py")
+limpieza = _load_module("limpieza", "limpiar_datos.py")
+consolidacion = _load_module("consolidacion", "consolidar.py")
 
 # Ruta relativa: scripts/../eda_output
 OUT_DIR = Path(__file__).resolve().parent.parent / "eda_output"
