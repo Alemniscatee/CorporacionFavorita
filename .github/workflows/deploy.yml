@@ -4,22 +4,32 @@ on:
   push:
     branches: [ "main" ]
     paths:
-      - 'manifest.json'
-
+      - 'dags/manifest.json'  # Ruta exacta según tu árbol de archivos
+  workflow_dispatch:          # Permite probar la acción manualmente desde GitHub
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Execute remote SSH commands to sync repo
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.AZURE_VM_HOST }}
-        username: ${{ secrets.AZURE_VM_USER }}
-        key: ${{ secrets.AZURE_SSH_KEY }}
-        script: |
-          echo "Conectado con éxito a la VM de Azure. Actualizando repositorio..."
-          cd ~/proyecto-data
-          git pull origin main --no-rebase
-          echo "¡Despliegue completado! Airflow actualizará los DAGs automáticamente."
+      - name: Execute remote SSH commands to sync repo and trigger DAG
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AZURE_VM_HOST }}
+          username: ${{ secrets.AZURE_VM_USER }}
+          key: ${{ secrets.AZURE_SSH_KEY }}
+          script: |
+            echo "Conectado a la VM. Actualizando repositorio..."
+            cd ~/proyecto-data
+            
+            # Sincroniza la VM con la rama main de GitHub
+            git pull origin main --no-rebase
+            
+            # Espera 3 segundos para refrescar volúmenes de Docker
+            sleep 3
+            
+            echo "Disparando el DAG en el contenedor de Airflow..."
+            # Ejecuta la orden de trigger directo en el scheduler
+            docker exec airflow_scheduler airflow dags trigger favorita_pipeline
+            
+            echo "¡Despliegue y ejecución iniciados correctamente!"
