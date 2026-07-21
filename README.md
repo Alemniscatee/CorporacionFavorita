@@ -87,6 +87,232 @@ Los archivos residen en `dags/datasets/` y no se suben al repositorio.
 ```
 ---
 ---
+# 4. Descripción del DAG: tareas, dependencias y configuración
+
+## Identificación
+
+- **DAG ID:** `favorita_pipeline`
+- **Archivo:** `dags/dag_migracion_favorita.py`
+- **Schedule:** `None` (ejecución manual o por GitHub Actions)
+
+## Tareas (orden secuencial)
+
+| Orden | Task ID | Script | Función |
+|-------|---------|--------|---------|
+| 1 | cargar_datos | cargar_datos.py | Lee los 5 CSV con Polars. Falla si algún archivo no existe. |
+| 2 | eda_inicial | eda_inicial.py | Genera diagnóstico: nulos, duplicados, tipos, rango de fechas. Guarda metricas_iniciales.json. |
+| 3 | limpiar_datos | limpiar_datos.py | Elimina duplicados (0), imputa nulos de `oil` mediante interpolación lineal y corrige tipos. |
+| 4 | consolidar | consolidar.py | Realiza joins secuenciales usando `store_nbr` y `date`. Resultado: 3,000,888 filas × 23 columnas. |
+| 5 | eda_profundo | eda_profundo.py | Genera 13 métricas de análisis (ventas por familia, ranking, estacionalidad, correlaciones, etc.). |
+| 6 | exportar_postgres | exportar_postgres.py | Exporta la tabla consolidada y las 13 tablas de EDA a PostgreSQL. |
+
+---
+## Configuración del DAG
+
+```python
+default_args = {
+    'owner': 'user',
+    'retries': 1,
+    'retry_delay': timedelta(minutes=5),
+    'email_on_failure': False,
+    'email_on_retry': False
+}
+
+dag = DAG(
+    'favorita_pipeline',
+    default_args=default_args,
+    schedule_interval=None,
+    start_date=datetime(2026, 7, 10),
+    catchup=False,
+    tags=['etl', 'polars', 'postgres']
+)
+```
+
+## Dependencias (flujo)
+
+```text
+cargar_datos
+      │
+      ▼
+eda_inicial
+      │
+      ▼
+limpiar_datos
+      │
+      ▼
+consolidar
+      │
+      ▼
+eda_profundo
+      │
+      ▼
+exportar_postgres
+```
+
+O utilizando la sintaxis de Airflow:
+
+```python
+cargar_datos >> eda_inicial >> limpiar_datos >> consolidar >> eda_profundo >> exportar_postgres
+```
+
+---
+
+# 5. Proceso del pipeline: descripción de cada etapa con capturas de Airflow
+
+## 5.1. Vista del DAG en la UI de Airflow
+
+El DAG aparece listado con sus **6 tareas** en secuencia lineal, permitiendo monitorear el estado de cada etapa del pipeline desde la interfaz web de Apache Airflow.
+
+---
+
+## 5.2. Logs de cada tarea
+
+### Tarea 1: `cargar_datos`
+
+```text
+[carga_datos] train          -> 3,000,888 filas x 6 cols (8.815s)
+[carga_datos] stores         ->        54 filas x 5 cols (0.001s)
+[carga_datos] transactions   ->    83,488 filas x 3 cols (0.010s)
+[carga_datos] oil            ->     1,218 filas x 2 cols (0.001s)
+[carga_datos] holidays       ->       350 filas x 6 cols (0.005s)
+```
+
+La tarea verifica la existencia de los cinco archivos CSV y los carga utilizando **Polars**, almacenándolos temporalmente para las siguientes etapas.
+
+---
+
+### Tarea 2: `eda_inicial`
+
+```text
+[eda_inicial] Reporte guardado:
+/opt/airflow/dags/eda_output/metricas_iniciales.json
+
+[eda_inicial] Nulos detectados:
+oil.dcoilwtico = 43 (3.53%)
+
+[eda_inicial] Rango fechas:
+2013-01-01 a 2017-08-15
+```
+
+Durante esta etapa se generan métricas de calidad de datos, incluyendo:
+
+- Valores nulos.
+- Registros duplicados.
+- Tipos de datos.
+- Distribución temporal.
+- Estadísticas descriptivas.
+
+El resultado se almacena en el archivo `metricas_iniciales.json`.
+
+---
+
+### Tarea 3: `limpiar_datos`
+
+```text
+[limpiar_datos]
+
+train:
+3,000,888 → 3,000,888
+(dup=0, nulos=0)
+
+oil:
+1,218 → 1,218
+(nulos imputados=1)
+
+stores:
+54 → 54
+(dup=0, nulos=0)
+
+transactions:
+83,488 → 83,488
+(dup=0)
+
+holidays:
+350 → 350
+(dup=0)
+```
+
+Las operaciones realizadas incluyen:
+
+- Eliminación de registros duplicados.
+- Conversión de tipos de datos.
+- Interpolación lineal para completar los valores faltantes del precio del petróleo.
+- Validación de integridad de las tablas.
+
+---
+
+### Tarea 4: `consolidar`
+
+```text
+[consolidar]
+
+Realizando joins secuenciales...
+
+train + stores:
+3,000,888 filas
+
++ transactions:
+3,000,888 filas
+
++ oil:
+3,000,888 filas
+
++ holidays:
+3,000,888 filas
+
+DataFrame consolidado:
+3,000,888 filas x 23 columnas
+```
+
+En esta fase se integran todas las fuentes mediante **joins** utilizando los campos:
+
+- `store_nbr`
+- `date`
+
+El resultado es una única tabla consolidada lista para el análisis.
+
+---
+
+### Tarea 5: `eda_profundo`
+
+```text
+[eda_profundo]
+
+Generando 13 métricas de análisis...
+
+eda_ventas_por_familia: 33 registros
+
+eda_ranking_tiendas: 54 registros
+
+eda_evolucion_temporal: 56 registros
+
+eda_correlacion_petroleo_ventas: 56 registros
+
+Todas las métricas generadas exitosamente
+```
+
+El análisis exploratorio profundo genera las tablas analíticas que posteriormente serán exportadas a PostgreSQL para su consumo desde Power BI.
+
+---
+
+### Tarea 6: `exportar_postgres`
+
+```text
+[exportar]
+
+Conectando a PostgreSQL
+
+Tabla ventas_consolidado:
+3,000,888 registros insertados
+
+Tablas EDA:
+13 tablas creadas
+
+Exportación completada
+```
+
+La información consolidada y todas las métricas generadas son almacenadas en PostgreSQL para permitir consultas mediante DirectQuery desde Power BI.
+
 # 6. Métricas del pipeline
 
 ## 6.1 Tiempo de ejecución por tarea
