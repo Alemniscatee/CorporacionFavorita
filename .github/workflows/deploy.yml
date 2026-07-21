@@ -4,8 +4,8 @@ on:
   push:
     branches: [ "main" ]
     paths:
-      - 'dags/manifest.json'  # Ruta exacta según tu árbol de archivos
-  workflow_dispatch:          # Permite probar la acción manualmente desde GitHub
+      - 'dags/manifest.json'  
+  workflow_dispatch:        
 
 jobs:
   deploy:
