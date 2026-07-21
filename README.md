@@ -34,9 +34,9 @@ Los archivos residen en `dags/datasets/` y no se suben al repositorio.
 # 3. Diagrama de arquitectura de la solución
 
 ```text
-┌────────────────────────────────────────────────────────────────────────────┐
-│                          AZURE VM (Ubuntu 22.04)                          │
-│                                                                           │
+┌──────────────────────────────────────────────────────────────────────────┐
+│                          AZURE VM (Ubuntu 22.04)                         │
+│                                                                          │
 │  ┌────────────────────────────────────────────────────────────────────┐  │
 │  │                         DOCKER COMPOSE                             │  │
 │  │                                                                    │  │
@@ -50,26 +50,26 @@ Los archivos residen en `dags/datasets/` y no se suben al repositorio.
 │  │  ┌───────▼─────────────────────────────────────────▼────────────┐  │  │
 │  │  │                 SCRIPTS (Python + Polars)                    │  │  │
 │  │  │                                                              │  │  │
-│  │  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌────────────┐     │  │  │
-│  │  │  │  Carga   │→│ Limpieza │→│Consolida-│→│EDA Profundo│     │  │  │
-│  │  │  └──────────┘  └──────────┘  └──────────┘  └────────────┘     │  │  │
+│  │  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌────────────┐    │  │  │
+│  │  │  │  Carga   │→ │ Limpieza │→ │Consolida-│→ │EDA Profundo│    │  │  │
+│  │  │  └──────────┘  └──────────┘  └──────────┘  └────────────┘    │  │  │
 │  │  │                                                              │  │  │
-│  │  │  ┌──────────────────────────────────────────────────────┐     │  │  │
-│  │  │  │  Exportación a PostgreSQL (14 tablas)                │     │  │  │
-│  │  │  └──────────────────────────────────────────────────────┘     │  │  │
-│  │  └──────────────────────────────────────────────────────────────┘ │  │
+│  │  │  ┌──────────────────────────────────────────────────────┐    │  │  │
+│  │  │  │  Exportación a PostgreSQL (14 tablas)                │    │  │  │
+│  │  │  └──────────────────────────────────────────────────────┘    │  │  │
+│  │  └──────────────────────────────────────────────────────────────┘  │  │
 │  └────────────────────────────────────────────────────────────────────┘  │
-│                                                                           │
-│  ┌────────────────────────────────────────────────────────────────────┐   │
-│  │               DATOS LOCALES (dags/datasets/)                       │   │
-│  │ train.csv | stores.csv | transactions.csv | oil.csv | holidays    │   │
-│  └────────────────────────────────────────────────────────────────────┘   │
-└────────────────────────────────────────────────────────────────────────────┘
+│                                                                          │
+│  ┌────────────────────────────────────────────────────────────────────┐  │
+│  │               DATOS LOCALES (dags/datasets/)                       │  │
+│  │ train.csv | stores.csv | transactions.csv | oil.csv | holidays     │  │
+│  └────────────────────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────────────────┘
                                     │
                                     ▼ (DirectQuery)
 
 ┌────────────────────────────────────────────────────────────────────────────┐
-│                       POWER BI DESKTOP                                    │
+│                       POWER BI DESKTOP                                     │
 │                                                                            │
 │  ┌────────────────────────────────────────────────────────────────────┐    │
 │  │                         DASHBOARD                                  │    │
@@ -315,50 +315,76 @@ La información consolidada y todas las métricas generadas son almacenadas en P
 
 # 6. Métricas del pipeline
 
-## 6.1 Tiempo de ejecución por tarea
+## 6.1. Tiempo de ejecución por tarea
 
 | Tarea | Tiempo (seg) | Registros procesados |
-|--------|-------------:|--------------------:|
-| cargar_datos | 9.5 | 3,000,888 |
-| eda_inicial | 8.2 | 3,000,888 |
-| limpiar_datos | 12.4 | 3,000,888 |
-| consolidar | 35.7 | 3,000,888 |
-| eda_profundo | 45.3 | 3,000,888 |
-| exportar_postgres | 52.1 | 3,000,888 |
-| **TOTAL** | **163.2 (2.7 min)** | **3,000,888** |
+|-------|-------------:|---------------------:|
+| `cargar_datos` | 8.8 | 3,000,888 |
+| `eda_inicial` | 7.5 | 3,000,888 |
+| `limpiar_datos` | 12.0 | 3,000,888 |
+| `consolidar` | 35.0 | 3,000,888 |
+| `eda_profundo` | 45.0 | 3,000,888 |
+| `exportar_postgres` | 52.0 | 3,000,888 |
+| **TOTAL** | **160.3 segundos (≈2.7 min)** | **3,000,888** |
+
+### Interpretación
+
+El procesamiento completo del pipeline tarda aproximadamente **2.7 minutos**, incluyendo:
+
+- Lectura de los cinco datasets.
+- Limpieza e imputación de datos.
+- Consolidación mediante joins.
+- Generación de métricas EDA.
+- Exportación a PostgreSQL.
+
+El tiempo de ejecución demuestra que **Polars** ofrece un rendimiento adecuado para procesar más de tres millones de registros utilizando una máquina virtual Azure B2s.
 
 ---
 
-## 6.2 Registros eliminados durante la limpieza
+## 6.2. Registros eliminados durante la limpieza
 
 | Archivo | Originales | Limpios | Duplicados | Nulos imputados |
 |---------|-----------:|--------:|-----------:|----------------:|
-| train.csv | 3,000,888 | 3,000,888 | 0 | 0 |
-| stores.csv | 54 | 54 | 0 | 0 |
-| transactions.csv | 83,488 | 83,488 | 0 | 0 |
-| oil.csv | 1,218 | 1,218 | 0 | 214 (interpolación) |
-| holidays_events.csv | 350 | 350 | 0 | 0 |
+| `train.csv` | 3,000,888 | 3,000,888 | 0 | 0 |
+| `stores.csv` | 54 | 54 | 0 | 0 |
+| `transactions.csv` | 83,488 | 83,488 | 0 | 0 |
+| `oil.csv` | 1,218 | 1,218 | 0 | 43 (interpolación lineal) |
+| `holidays_events.csv` | 350 | 350 | 0 | 0 |
+
+### Resumen del proceso de limpieza
+
+Las actividades realizadas fueron:
+
+- Eliminación de registros duplicados.
+- Corrección de tipos de datos.
+- Validación de integridad.
+- Imputación de valores faltantes únicamente en la serie histórica del precio del petróleo.
+
+No fue necesario eliminar registros del conjunto de datos principal (`train.csv`), conservándose el **100%** de la información original.
 
 ---
 
-## 6.3 Tablas generadas en PostgreSQL (14 tablas)
+## 6.3. Tablas generadas en PostgreSQL
+
+El pipeline genera **14 tablas**, correspondientes a la tabla consolidada y las tablas analíticas utilizadas por Power BI.
 
 | Tabla | Registros | Propósito |
 |-------|----------:|-----------|
-| ventas_consolidado | 3,000,888 | Datos maestros consolidados |
-| eda_ventas_por_familia | 33 | Volumen de ventas por categoría |
-| eda_ranking_tiendas | 54 | Ranking de tiendas por ventas |
-| eda_ventas_por_ciudad_provincia| 22 | Ventas promedio geográficas |
-| eda_evolucion_temporal | 56 | Tendencia mensual (2013–2017) |
-| eda_impacto_feriados | 2 | Comparativo feriado vs normal |
-| eda_ventas_entorno_feriados | 231 | Días previos/posteriores a feriados |
-| eda_sensibilidad_familia_feriados | 33 | Familias más sensibles a feriados |
-| eda_impacto_promociones | 33 | Promedio de ventas con/sin promoción |
-| eda_correlacion_petroleo_ventas | 56 | Correlación mensual petróleo-ventas |
-| eda_lag_petroleo_ventas | 7 | Lag temporal (2015–2016) |
-| eda_sensibilidad_ciudad_petroleo | 22 | Ciudades más sensibles al petróleo |
-| eda_transacciones_vs_ventas | 54 | Relación transacciones-ventas por tienda |
-| eda_ticket_promedio_tiendas | 54 | Ticket promedio por tienda |
+| `ventas_consolidado` | 3,000,888 | Datos consolidados del proyecto |
+| `eda_ventas_por_familia` | 33 | Ventas por familia de productos |
+| `eda_ranking_tiendas` | 54 | Ranking de tiendas |
+| `eda_ventas_por_ciudad_provincia` | 22 | Ventas promedio por ciudad y provincia |
+| `eda_evolucion_temporal` | 56 | Evolución mensual de ventas |
+| `eda_impacto_feriados` | 2 | Comparación entre días normales y feriados |
+| `eda_ventas_entorno_feriados` | 231 | Ventas antes y después de feriados |
+| `eda_sensibilidad_familia_feriados` | 33 | Sensibilidad por familia |
+| `eda_impacto_promociones` | 33 | Comparación de promociones |
+| `eda_correlacion_petroleo_ventas` | 56 | Relación petróleo-ventas |
+| `eda_lag_petroleo_ventas` | 7 | Análisis de desfase temporal |
+| `eda_sensibilidad_ciudad_petroleo` | 22 | Sensibilidad por ciudad |
+| `eda_transacciones_vs_ventas` | 54 | Relación ventas-transacciones |
+| `eda_ticket_promedio_tiendas` | 54 | Ticket promedio por tienda |
+
 ---
 
 # Dashboard de Power BI
