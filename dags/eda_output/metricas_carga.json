@@ -2,26 +2,26 @@
   "train": {
     "filas": 3000888,
     "columnas": 6,
-    "segundos": 9.3582
+    "segundos": 11.0714
   },
   "stores": {
     "filas": 54,
     "columnas": 5,
-    "segundos": 0.0003
+    "segundos": 0.0005
   },
   "transactions": {
     "filas": 83488,
     "columnas": 3,
-    "segundos": 0.0097
+    "segundos": 0.0116
   },
   "oil": {
     "filas": 1218,
     "columnas": 2,
-    "segundos": 0.0005
+    "segundos": 0.0006
   },
   "holidays": {
     "filas": 350,
     "columnas": 6,
-    "segundos": 0.0048
+    "segundos": 0.0079
   }
 }

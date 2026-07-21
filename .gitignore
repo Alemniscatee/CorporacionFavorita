@@ -30,3 +30,4 @@ postgres-data/
 dags/datasets/
 dags/.env
 dags/.env
+dags/eda_output
