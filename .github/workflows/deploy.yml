@@ -22,14 +22,12 @@ jobs:
             echo "Conectado a la VM. Actualizando repositorio..."
             cd ~/proyecto-data
             
-            # Sincroniza la VM con la rama main de GitHub
+
             git pull origin main --no-rebase
             
-            # Espera 3 segundos para refrescar volúmenes de Docker
             sleep 3
             
             echo "Disparando el DAG en el contenedor de Airflow..."
-            # Ejecuta la orden de trigger directo en el scheduler
             docker exec airflow_scheduler airflow dags trigger favorita_pipeline
             
             echo "¡Despliegue y ejecución iniciados correctamente!"
