@@ -430,7 +430,25 @@ Treemap que muestra el total de ventas por tienda y por tipo de establecimiento.
 ### Top de familias
 
 Participación porcentual de cada familia de productos respecto al total de ventas.    
+## 7. Capturas del dashboard de Power BI
 
+A continuación se presentan las capturas de pantalla del dashboard implementado en Power BI, conectado en tiempo real a la base de datos PostgreSQL que contiene los datos consolidados del pipeline.
+
+### 7.1. Vista general del dashboard
+
+La siguiente imagen muestra la vista completa del dashboard, que integra todas las visualizaciones diseñadas para el análisis de ventas de Corporación Favorita.
+
+![Figura 1: Dashboard completo de Corporación Favorita](https://github.com/Alemniscatee/CorporacionFavorita/blob/Power-BI/fig_01_descripcion.png?raw=true)
+
+*Figura 1: Dashboard completo del sistema de análisis de ventas de Corporación Favorita. Fuente: Power BI, datos de Corporación Favorita, 2026.*
+
+### 7.2. Detalle de métricas y visualizaciones
+
+Esta segunda imagen ofrece un detalle ampliado de las métricas principales y las visualizaciones clave del dashboard, como la evolución de ventas y el impacto de promociones.
+
+![Figura 2: Detalle de métricas del dashboard](https://github.com/Alemniscatee/CorporacionFavorita/blob/Power-BI/fig_02_descripcion.png?raw=true)
+
+*Figura 2: Detalle de las métricas principales y visualizaciones del dashboard. Fuente: Power BI, datos de Corporación Favorita, 2026.*
 ---
 # 8. Despliegue: instrucciones para reproducir el ambiente
 
