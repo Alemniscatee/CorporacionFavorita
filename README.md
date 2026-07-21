@@ -15,6 +15,19 @@ El ecosistema tecnológico se compone de los siguientes pilares:
 *   **Motor de Procesamiento:** Scripts independientes en Python optimizados mediante **Polars**.
 *   **Almacenamiento:** Instancia relacional de PostgreSQL para persistir los datos limpios y transformados listos para analítica.
 ## Diagrama de arquitectura de la solución
+# 2. Descripción de los archivos del dataset y su rol en el pipeline
+
+Los archivos residen en `dags/datasets/` y no se suben al repositorio.
+
+| Archivo | Registros | Columnas | Rol en el pipeline |
+|---------|-----------|----------|-------------------|
+| `train.csv` | 3,000,888 | 6 | Fuente principal de ventas diarias por tienda, familia y promoción. |
+| `stores.csv` | 54 | 5 | Metadata de tiendas: ciudad, provincia, tipo y clúster. Se usa para enriquecer datos geográficos. |
+| `transactions.csv` | 83,488 | 3 | Número de transacciones por tienda y fecha. Permite análisis de ticket promedio. |
+| `oil.csv` | 1,218 | 2 | Precio diario del petróleo (dcoilwtico). Contiene nulos en fines de semana (43 valores, 3.53%). |
+| `holidays_events.csv` | 350 | 6 | Feriados nacionales, regionales y locales con tipo y bandera de transferencia. |
+
+**Nota:** `test.csv` no se utiliza (corresponde a predicción de Kaggle).
 
 ## Arquitectura del Proyecto
 
